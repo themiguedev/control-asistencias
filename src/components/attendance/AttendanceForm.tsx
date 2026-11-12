@@ -96,7 +96,10 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           r.studentId === student.id &&
           r.teacherId === teacher.id &&
           r.classDate === dateStr &&
-          (r.blockId === student.blockId || (!r.blockId && !student.blockId))
+          (r.blockId === student.blockId ||
+            !r.blockId ||
+            !student.blockId ||
+            teacher.blockType === 'continuous')
       );
       if (found) {
         initial[student.id] = {
@@ -148,13 +151,18 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const existingRecordsForDay = existingRecords.filter(
     (r) => r.teacherId === teacher.id && r.classDate === dateStr,
   );
+  const existingStudentRecordsForDay = existingStudentRecords.filter(
+    (r) => r.teacherId === teacher.id && r.classDate === dateStr,
+  );
+
   const isAlreadyRegistered =
-    teacher.blocks.length > 0 &&
-    teacher.blocks.every((b) =>
-      existingRecordsForDay.some(
-        (r) => r.blockId === b.id || (!r.blockId && teacher.blocks.length === 1),
-      ),
-    );
+    (teacher.blocks.length > 0 &&
+      teacher.blocks.every((b) =>
+        existingRecordsForDay.some(
+          (r) => r.blockId === b.id || (!r.blockId && teacher.blocks.length === 1),
+        ),
+      )) ||
+    existingStudentRecordsForDay.length > 0;
 
   const canEdit = !isAlreadyRegistered || isEditMode;
 
@@ -227,7 +235,10 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
               r.studentId === student.id &&
               r.teacherId === teacher.id &&
               r.classDate === dateStr &&
-              (r.blockId === student.blockId || (!r.blockId && !student.blockId))
+              (r.blockId === student.blockId ||
+                !r.blockId ||
+                !student.blockId ||
+                teacher.blockType === 'continuous')
           );
 
           const resolvedBlockId =
@@ -420,7 +431,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-bold">
               <span>✓</span>
-              <span>Registrado</span>
+              <span>Asistencia Registrada</span>
             </span>
 
             <button
@@ -430,7 +441,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
               title="Modificar asistencias de esta fecha"
             >
               <span>✏️</span>
-              <span>{isEditMode ? 'Cancelar' : 'Modificar'}</span>
+              <span>{isEditMode ? 'Ver Registrado' : 'Modificar Asistencia'}</span>
             </button>
 
             {onDeleteAttendance && (
@@ -455,6 +466,45 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           </div>
         )}
       </div>
+
+      {/* Banner informativo de asistencia guardada previamente */}
+      {isAlreadyRegistered && (
+        <div
+          className={`mb-4 sm:mb-5 p-3 sm:p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors ${
+            isEditMode
+              ? 'bg-amber-50/70 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-200'
+              : 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/50 text-emerald-800 dark:text-emerald-200'
+          }`}
+        >
+          <div className="flex items-center gap-2.5 text-xs sm:text-sm">
+            <span className="text-base sm:text-lg shrink-0">
+              {isEditMode ? '✏️' : '📋'}
+            </span>
+            <div>
+              <p className="font-bold leading-tight">
+                {isEditMode
+                  ? 'Modificando asistencia guardada anteriormente'
+                  : 'Asistencia registrada previamente para esta fecha'}
+              </p>
+              <p className="text-[11px] sm:text-xs opacity-90 mt-0.5">
+                {isEditMode
+                  ? 'Puedes cambiar los estados de los alumnos y pulsar "Actualizar Asistencias" para guardar los cambios.'
+                  : `Se cargaron las selecciones guardadas: ${studentStats.presentes} presentes, ${studentStats.ausentes} ausentes, ${studentStats.justificados} justificados.`}
+              </p>
+            </div>
+          </div>
+
+          {!isEditMode && (
+            <button
+              type="button"
+              onClick={() => setIsEditMode(true)}
+              className="self-end sm:self-auto px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-xs cursor-pointer touch-manipulation whitespace-nowrap"
+            >
+              Modificar
+            </button>
+          )}
+        </div>
+      )}
 
       {isSubmittedSuccess && (
         <div className="mb-4 sm:mb-5 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-medium flex items-center gap-2">
