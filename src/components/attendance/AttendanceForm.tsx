@@ -345,22 +345,30 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         key={student.id}
         className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border gap-2.5 transition-all ${
           isMarked
-            ? 'bg-slate-50/90 dark:bg-slate-800/90 border-blue-400/50 dark:border-blue-500/40 shadow-xs'
-            : 'bg-slate-50/50 dark:bg-slate-850/40 border-slate-200 dark:border-slate-800'
+            ? 'bg-blue-50/40 dark:bg-slate-800/80 border-emerald-500/60 dark:border-emerald-500/50 shadow-sm'
+            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
         }`}
       >
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Ganchito / Check badge indicando que fue seleccionado */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {/* Ganchito indicador con color dinamico segun la seleccion */}
             <span
-              className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold transition-all shrink-0 ${
-                isMarked
-                  ? 'bg-emerald-500 text-white shadow-xs scale-100'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 scale-90'
+              className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-all shrink-0 ${
+                !isMarked
+                  ? 'border border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800'
+                  : currentStatus === 'presente'
+                  ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30'
+                  : currentStatus === 'ausente'
+                  ? 'bg-rose-500 text-white shadow-sm shadow-rose-500/30'
+                  : 'bg-amber-500 text-white shadow-sm shadow-amber-500/30'
               }`}
-              title={isMarked ? 'Asistencia seleccionada para este alumno' : 'Pendiente por marcar'}
+              title={
+                !isMarked
+                  ? 'Pendiente de registrar'
+                  : `Marcado como: ${currentStatus.toUpperCase()}`
+              }
             >
-              {isMarked ? '✓' : '•'}
+              {!isMarked ? '—' : currentStatus === 'presente' ? '✓' : currentStatus === 'ausente' ? '✗' : '!'}
             </span>
 
             <span className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm truncate">
@@ -374,7 +382,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             )}
           </div>
           {student.identifier && (
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono block mt-0.5 ml-7">
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono block mt-0.5 ml-8.5">
               {student.identifier}
             </span>
           )}
