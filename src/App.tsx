@@ -741,11 +741,11 @@ export function App() {
                 <button
                   type="button"
                   onClick={() => setIsReportsModalOpen(true)}
-                  className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition cursor-pointer shadow-2xs"
+                  className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-600 transition cursor-pointer shadow-sm"
                   title="Abrir Centro de Reportes en ventana flotante"
                 >
                   <span>📑</span>
-                  <span>Ventana de Reportes</span>
+                  <span className="font-semibold">Ventana de Reportes</span>
                 </button>
               </div>
             </div>

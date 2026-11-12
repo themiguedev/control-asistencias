@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Logo & Brand Title */}
           <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
             <img
-              src="/logo-team-bellas-artes.jpg"
+              src={`${import.meta.env.BASE_URL}logo-team-bellas-artes.jpg`}
               alt="Logo Team Bellas Artes BOTS"
               className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-blue-500/40 shadow-sm shrink-0"
             />

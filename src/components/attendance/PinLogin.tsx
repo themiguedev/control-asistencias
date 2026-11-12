@@ -89,7 +89,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({
       >
         <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4">
           <img
-            src="/logo-team-bellas-artes.jpg"
+            src={`${import.meta.env.BASE_URL}logo-team-bellas-artes.jpg`}
             alt="Logo Team Bellas Artes"
             className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-blue-500/30 shadow-md mx-auto"
           />
