@@ -494,3 +494,16 @@ export const supabaseService = {
     setLocal(STORAGE_KEYS.ATTENDANCE_RECORDS, records);
   },
 };
+
+// Direct function exports for easy importing
+export const getStudents = supabaseService.getStudents.bind(supabaseService);
+export const addStudent = supabaseService.addStudent.bind(supabaseService);
+export const updateStudent = supabaseService.updateStudent.bind(supabaseService);
+export const deleteStudent = supabaseService.deleteStudent.bind(supabaseService);
+export const getStudentAttendances = supabaseService.getStudentAttendances.bind(supabaseService);
+export const recordStudentAttendance = supabaseService.recordStudentAttendance.bind(supabaseService);
+export const recordBulkStudentAttendance = supabaseService.recordBulkStudentAttendance.bind(supabaseService);
+export const deleteStudentAttendance = supabaseService.deleteStudentAttendance.bind(supabaseService);
+export const getTeachers = supabaseService.getTeachers.bind(supabaseService);
+export const syncTeachers = supabaseService.syncTeachers.bind(supabaseService);
+

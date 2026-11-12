@@ -11,6 +11,16 @@ import StudentsManager from './components/students/StudentsManager';
 import WeeklyReportsView from './components/reports/WeeklyReportsView';
 import WeeklyReportsModal from './components/reports/WeeklyReportsModal';
 import { formatDate } from './utils/schedule';
+import {
+  getStudents,
+  addStudent as dbAddStudent,
+  updateStudent as dbUpdateStudent,
+  deleteStudent as dbDeleteStudent,
+  getStudentAttendances,
+  recordBulkStudentAttendance,
+  deleteStudentAttendance as dbDeleteStudentAttendance,
+} from './services/supabaseService';
+import { isSupabaseConfigured } from './lib/supabase';
 
 // Sample initial records for demo/testing
 const INITIAL_RECORDS: AttendanceRecord[] = [
@@ -437,7 +447,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState<'asistencias' | 'alumnos' | 'reportes'>('asistencias');
   const [isReportsModalOpen, setIsReportsModalOpen] = useState<boolean>(false);
 
-  // Students list with localStorage persistence
+  // Students list with Supabase + localStorage persistence
   const [students, setStudents] = useState<Student[]>(() => {
     const saved = localStorage.getItem('cba-students');
     if (saved) {
@@ -450,11 +460,7 @@ export function App() {
     return INITIAL_STUDENTS;
   });
 
-  useEffect(() => {
-    localStorage.setItem('cba-students', JSON.stringify(students));
-  }, [students]);
-
-  // Student Attendance Records with localStorage persistence ('cba-student-attendance')
+  // Student Attendance Records with Supabase + localStorage persistence
   const [studentAttendanceRecords, setStudentAttendanceRecords] = useState<StudentAttendanceRecord[]>(() => {
     const saved = localStorage.getItem('cba-student-attendance');
     if (saved) {
@@ -466,6 +472,36 @@ export function App() {
     }
     return INITIAL_STUDENT_ATTENDANCE;
   });
+
+  // On mount: load students & attendances from Supabase if configured
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    let isMounted = true;
+    async function loadCloudData() {
+      try {
+        const cloudStudents = await getStudents();
+        if (isMounted && cloudStudents && cloudStudents.length > 0) {
+          setStudents(cloudStudents);
+        }
+        const cloudAttendances = await getStudentAttendances();
+        if (isMounted && cloudAttendances && cloudAttendances.length > 0) {
+          setStudentAttendanceRecords(cloudAttendances);
+        }
+      } catch (err) {
+        console.warn('[App] Error sincronizando con Supabase:', err);
+      }
+    }
+
+    loadCloudData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('cba-students', JSON.stringify(students));
+  }, [students]);
 
   useEffect(() => {
     localStorage.setItem('cba-student-attendance', JSON.stringify(studentAttendanceRecords));
@@ -542,6 +578,12 @@ export function App() {
       );
       return [...cleanPrev, ...records];
     });
+
+    if (isSupabaseConfigured) {
+      recordBulkStudentAttendance(records).catch((err: unknown) =>
+        console.warn('[App] Error guardando asistencia en Supabase:', err)
+      );
+    }
   };
 
   const handleDeleteAttendance = (teacherId: string, classDate: string) => {
@@ -551,6 +593,18 @@ export function App() {
     setStudentAttendanceRecords((prev) =>
       prev.filter((r) => !(r.teacherId === teacherId && r.classDate === classDate))
     );
+
+    if (isSupabaseConfigured) {
+      // Find IDs of attendance records for that teacher and date
+      const toDelete = studentAttendanceRecords.filter(
+        (r) => r.teacherId === teacherId && r.classDate === classDate
+      );
+      toDelete.forEach((r) => {
+        dbDeleteStudentAttendance(r.id).catch((err: unknown) =>
+          console.warn('[App] Error borrando asistencia en Supabase:', err)
+        );
+      });
+    }
   };
 
   const handleAddStudent = (newStudentData: Omit<Student, 'id' | 'createdAt'>) => {
@@ -560,18 +614,36 @@ export function App() {
       createdAt: new Date().toISOString(),
     };
     setStudents((prev) => [newStudent, ...prev]);
+
+    if (isSupabaseConfigured) {
+      dbAddStudent(newStudent).catch((err: unknown) =>
+        console.warn('[App] Error agregando estudiante en Supabase:', err)
+      );
+    }
   };
 
   const handleDeleteStudent = (studentId: string) => {
     setStudents((prev) => prev.filter((s) => s.id !== studentId));
     // Also remove any attendance records for deleted student
     setStudentAttendanceRecords((prev) => prev.filter((r) => r.studentId !== studentId));
+
+    if (isSupabaseConfigured) {
+      dbDeleteStudent(studentId).catch((err: unknown) =>
+        console.warn('[App] Error eliminando estudiante en Supabase:', err)
+      );
+    }
   };
 
   const handleUpdateStudent = (updatedStudent: Student) => {
     setStudents((prev) =>
       prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s))
     );
+
+    if (isSupabaseConfigured) {
+      dbUpdateStudent(updatedStudent.id, updatedStudent).catch((err: unknown) =>
+        console.warn('[App] Error actualizando estudiante en Supabase:', err)
+      );
+    }
   };
 
   return (
