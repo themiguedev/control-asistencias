@@ -112,18 +112,8 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     setBlockStates((prev) => ({
       ...prev,
       [blockId]: {
-        ...(prev[blockId] || { notes: '' }),
+        notes: '',
         status,
-      },
-    }));
-  };
-
-  const handleNotesChange = (blockId: string, notes: string) => {
-    setBlockStates((prev) => ({
-      ...prev,
-      [blockId]: {
-        ...(prev[blockId] || { status: 'presente' }),
-        notes,
       },
     }));
   };
@@ -141,7 +131,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         classDate: dateStr,
         dayName,
         status: state.status,
-        notes: state.notes,
+        notes: '',
       };
     });
 
@@ -317,34 +307,8 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
               )}
 
               {/* Radio Group */}
-              <div className="mb-3">
-                {renderStatusRadioOptions(block, blockState.status)}
-              </div>
-
-              {/* Notes Field */}
               <div>
-                <label
-                  htmlFor={`notes-${block.id}`}
-                  className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1"
-                >
-                  Observaciones / Justificación{' '}
-                  <span className="text-slate-400 dark:text-slate-500 font-normal">(opcional)</span>:
-                </label>
-                <textarea
-                  id={`notes-${block.id}`}
-                  rows={2}
-                  disabled={isAlreadyRegistered}
-                  value={blockState.notes}
-                  onChange={(e) => handleNotesChange(block.id, e.target.value)}
-                  placeholder={
-                    blockState.status === 'justificado'
-                      ? 'Motivo del permiso, incapacidad médica o reprogramación...'
-                      : 'Notas adicionales sobre la sesión...'
-                  }
-                  className={`w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none ${
-                    isAlreadyRegistered ? 'bg-slate-100/60 dark:bg-slate-800/40 text-slate-500 cursor-not-allowed' : ''
-                  }`}
-                />
+                {renderStatusRadioOptions(block, blockState.status)}
               </div>
             </div>
           );
