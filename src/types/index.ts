@@ -30,6 +30,27 @@ export interface AttendanceRecord {
   createdAt: string;
 }
 
+export interface Student {
+  id: string;
+  teacherId: string;
+  blockId?: string | null; // For teachers with split blocks (like Mayuli)
+  fullName: string;
+  identifier?: string; // DNI / Cédula / Código de estudiante
+  contactPhone?: string;
+  createdAt: string;
+}
+
+export interface StudentAttendanceRecord {
+  id: string;
+  studentId: string;
+  teacherId: string;
+  blockId: string | null;
+  classDate: string; // YYYY-MM-DD
+  status: AttendanceStatus;
+  notes?: string;
+  createdAt: string;
+}
+
 export interface TeacherWithBlocks extends Teacher {
   blocks: Block[];
 }
