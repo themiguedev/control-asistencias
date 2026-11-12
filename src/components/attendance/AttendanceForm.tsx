@@ -107,6 +107,15 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     return initial;
   });
 
+  // Track which students have been marked/interacted with in this session or already saved
+  const [markedStudentIds, setMarkedStudentIds] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    existingStudentRecords
+      .filter((r) => r.teacherId === teacher.id && r.classDate === dateStr)
+      .forEach((r) => initial.add(r.studentId));
+    return initial;
+  });
+
   const [isSubmittedSuccess, setIsSubmittedSuccess] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -166,6 +175,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         status,
       },
     }));
+    setMarkedStudentIds((prev) => new Set(prev).add(studentId));
   };
 
   const handleMarkAllStudents = (status: AttendanceStatus, targetBlockId?: string) => {
@@ -177,6 +187,15 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             ...next[st.id],
             status,
           };
+        }
+      });
+      return next;
+    });
+    setMarkedStudentIds((prev) => {
+      const next = new Set(prev);
+      teacherStudents.forEach((st) => {
+        if (!targetBlockId || st.blockId === targetBlockId) {
+          next.add(st.id);
         }
       });
       return next;
@@ -319,14 +338,31 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
 
   const renderStudentRow = (student: Student) => {
     const currentStatus = studentStates[student.id]?.status || 'presente';
+    const isMarked = markedStudentIds.has(student.id);
 
     return (
       <div
         key={student.id}
-        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 gap-2.5 transition hover:border-slate-300 dark:hover:border-slate-600"
+        className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border gap-2.5 transition-all ${
+          isMarked
+            ? 'bg-slate-50/90 dark:bg-slate-800/90 border-blue-400/50 dark:border-blue-500/40 shadow-xs'
+            : 'bg-slate-50/50 dark:bg-slate-850/40 border-slate-200 dark:border-slate-800'
+        }`}
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Ganchito / Check badge indicando que fue seleccionado */}
+            <span
+              className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold transition-all shrink-0 ${
+                isMarked
+                  ? 'bg-emerald-500 text-white shadow-xs scale-100'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 scale-90'
+              }`}
+              title={isMarked ? 'Asistencia seleccionada para este alumno' : 'Pendiente por marcar'}
+            >
+              {isMarked ? '✓' : '•'}
+            </span>
+
             <span className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm truncate">
               {student.fullName}
             </span>
@@ -338,7 +374,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             )}
           </div>
           {student.identifier && (
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono block mt-0.5">
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono block mt-0.5 ml-7">
               {student.identifier}
             </span>
           )}
