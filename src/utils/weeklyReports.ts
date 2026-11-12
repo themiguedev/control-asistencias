@@ -33,6 +33,24 @@ export function getISOWeekNumber(d: Date): number {
 }
 
 /**
+ * Nombres de los meses en español
+ */
+const MONTH_NAMES = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+];
+
+/**
  * Computes the full WeekRange object for the week containing referenceDate.
  * Class days considered are Monday through Friday (5 teaching days).
  */
@@ -50,6 +68,12 @@ export function getWeekRange(referenceDate: Date = new Date()): WeekRange {
   const weekNumber = getISOWeekNumber(monday);
   const year = monday.getFullYear();
 
+  // Calcular el mes predominante (usando el jueves de la semana) y la semana del mes (1 a 4)
+  const midWeek = new Date(monday);
+  midWeek.setDate(monday.getDate() + 3); // Jueves
+  const monthName = MONTH_NAMES[midWeek.getMonth()];
+  const weekOfMonth = Math.min(4, Math.max(1, Math.ceil(midWeek.getDate() / 7)));
+
   const weekDays = [0, 1, 2, 3, 4].map((offset) => {
     const cur = new Date(monday);
     cur.setDate(monday.getDate() + offset);
@@ -66,7 +90,7 @@ export function getWeekRange(referenceDate: Date = new Date()): WeekRange {
   const endFormatted = `${String(friday.getDate()).padStart(2, '0')}/${String(
     friday.getMonth() + 1
   ).padStart(2, '0')}/${friday.getFullYear()}`;
-  const label = `Semana ${weekNumber} (${startFormatted} - ${endFormatted})`;
+  const label = `${monthName} - Semana ${weekOfMonth} (${startFormatted} - ${endFormatted})`;
 
   return {
     startDate: formatDate(monday),
