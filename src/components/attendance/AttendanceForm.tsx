@@ -6,7 +6,7 @@ import type {
   DayOfWeek,
   Block,
 } from '../../types';
-import { isTeachingDay, formatDate, getDayName } from '../../utils/schedule';
+import { isTeachingDay, formatDate, getDayName, formatTimeRange12h } from '../../utils/schedule';
 import { StatusBadge } from './StatusBadge';
 
 export interface NewAttendanceRecordData {
@@ -284,7 +284,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                       <StatusBadge status={blockState.status} size="sm" />
                     )}
                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                      🕒 {block.startTime} - {block.endTime}
+                      🕒 {formatTimeRange12h(block.startTime, block.endTime)}
                     </span>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                       <StatusBadge status={blockState.status} size="sm" />
                     )}
                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                      🕒 {block.startTime} - {block.endTime}
+                      🕒 {formatTimeRange12h(block.startTime, block.endTime)}
                     </span>
                   </div>
                 </div>

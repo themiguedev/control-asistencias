@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { TeacherWithBlocks, Student } from '../../types';
+import { formatTimeRange12h } from '../../utils/schedule';
 
 interface StudentsManagerProps {
   teacher: TeacherWithBlocks;
@@ -100,7 +101,7 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                 >
                   {teacher.blocks.map((block) => (
                     <option key={block.id} value={block.id}>
-                      {block.label} ({block.startTime} - {block.endTime})
+                      {block.label} ({formatTimeRange12h(block.startTime, block.endTime)})
                     </option>
                   ))}
                 </select>
@@ -179,7 +180,7 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                         {assignedBlock && (
                           <div className="mt-1">
                             <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[11px] font-medium border border-blue-200 dark:border-blue-800/60">
-                              🕒 {assignedBlock.label} ({assignedBlock.startTime} - {assignedBlock.endTime})
+                              🕒 {assignedBlock.label} ({formatTimeRange12h(assignedBlock.startTime, assignedBlock.endTime)})
                             </span>
                           </div>
                         )}

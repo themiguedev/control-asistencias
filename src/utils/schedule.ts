@@ -43,8 +43,25 @@ export function getTeachersForDay(
 }
 
 /**
- * Formats a Date as YYYY-MM-DD.
+ * Formats a 24-hour time string (e.g. "16:00" or "09:30") to 12-hour format with am/pm (e.g. "4:00 pm").
  */
+export function formatTime12h(timeStr: string): string {
+  if (!timeStr || !timeStr.includes(':')) return timeStr;
+  const [hoursStr, minutesStr] = timeStr.split(':');
+  const hours = parseInt(hoursStr, 10);
+  if (isNaN(hours)) return timeStr;
+  const period = hours >= 12 ? 'pm' : 'am';
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${minutesStr} ${period}`;
+}
+
+/**
+ * Formats a start and end time range in 12-hour format (e.g. "4:00 pm - 6:00 pm").
+ */
+export function formatTimeRange12h(startTime: string, endTime: string): string {
+  return `${formatTime12h(startTime)} - ${formatTime12h(endTime)}`;
+}
+
 export function formatDate(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
