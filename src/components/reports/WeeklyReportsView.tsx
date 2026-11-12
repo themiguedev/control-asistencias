@@ -347,7 +347,7 @@ export function WeeklyReportsView({
             className={`py-2.5 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer border ${
               reportTab === 'equipo'
                 ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             📗 1. Por Equipo y Profesor
@@ -358,7 +358,7 @@ export function WeeklyReportsView({
             className={`py-2.5 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer border ${
               reportTab === 'profesor'
                 ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             📘 2. Alumnos por Profesor
@@ -369,7 +369,7 @@ export function WeeklyReportsView({
             className={`py-2.5 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition cursor-pointer border ${
               reportTab === 'general'
                 ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
             📙 3. General Semanal CBA
@@ -481,7 +481,7 @@ export function WeeklyReportsView({
                 className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm"
               >
                 {/* Teacher Group Header */}
-                <div className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
                     <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
@@ -538,7 +538,7 @@ export function WeeklyReportsView({
                             {studentItems.map((item) => (
                               <tr
                                 key={item.student.id}
-                                className="hover:bg-slate-50/80 dark:hover:bg-slate-850/60 transition"
+                                className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition"
                               >
                                 <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                                   {item.student.fullName}
@@ -610,7 +610,7 @@ export function WeeklyReportsView({
                 className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm"
               >
                 {/* Teacher Header */}
-                <div className="bg-slate-50 dark:bg-slate-850 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                       <span>👨‍🏫</span>
@@ -659,7 +659,7 @@ export function WeeklyReportsView({
                         {summaries.map((item) => (
                           <tr
                             key={item.student.id}
-                            className="hover:bg-slate-50/80 dark:hover:bg-slate-850/60 transition"
+                            className="hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition"
                           >
                             <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                               {item.student.fullName}
@@ -830,12 +830,12 @@ export function WeeklyReportsView({
                     ? 'text-slate-400 bg-slate-200 dark:bg-slate-800'
                     : index === 2
                     ? 'text-amber-700 bg-amber-100 dark:bg-amber-950'
-                    : 'text-slate-500 bg-slate-100 dark:bg-slate-850';
+                    : 'text-slate-500 bg-slate-100 dark:bg-slate-800';
 
                 return (
                   <div
                     key={team.name}
-                    className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -917,7 +917,7 @@ export function WeeklyReportsView({
                     const tRate = tRecs.length > 0 ? Math.round((tPres / tRecs.length) * 100) : 0;
 
                     return (
-                      <tr key={teacher.id} className="hover:bg-slate-50 dark:hover:bg-slate-850 transition">
+                      <tr key={teacher.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                         <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white">
                           {teacher.name}
                         </td>
@@ -996,7 +996,7 @@ export function WeeklyReportsView({
                       day.dayName.charAt(0).toUpperCase() + day.dayName.slice(1);
 
                     return (
-                      <tr key={day.dateStr} className="hover:bg-slate-50 dark:hover:bg-slate-850 transition">
+                      <tr key={day.dateStr} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition">
                         <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white">
                           {dayCapitalized}
                         </td>

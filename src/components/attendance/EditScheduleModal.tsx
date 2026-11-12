@@ -135,7 +135,7 @@ export const EditScheduleModal: React.FC<EditScheduleModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-850/50">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
           <div className="flex items-center gap-2.5">
             <span className="text-xl">⏰</span>
             <div>
@@ -174,7 +174,7 @@ export const EditScheduleModal: React.FC<EditScheduleModalProps> = ({
                     className={`py-2 px-2 rounded-xl font-semibold text-center border transition cursor-pointer touch-manipulation ${
                       active
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                        : 'bg-slate-100 dark:bg-slate-850 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-200'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-200'
                     }`}
                   >
                     {d.label}
@@ -196,7 +196,7 @@ export const EditScheduleModal: React.FC<EditScheduleModalProps> = ({
                 className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
                   mode === 'continuous'
                     ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-200 font-semibold shadow-xs'
-                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -214,7 +214,7 @@ export const EditScheduleModal: React.FC<EditScheduleModalProps> = ({
                 className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
                   mode === 'split'
                     ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-200 font-semibold shadow-xs'
-                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
+                    : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -249,7 +249,7 @@ export const EditScheduleModal: React.FC<EditScheduleModalProps> = ({
               {blocks.map((b, idx) => (
                 <div
                   key={b.id || idx}
-                  className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 space-y-2"
+                  className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 space-y-2"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <input

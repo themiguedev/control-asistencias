@@ -739,7 +739,7 @@ export function App() {
                     className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
                       activeTab === 'asistencias'
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     <span className="text-base sm:text-sm">📅</span>
@@ -753,7 +753,7 @@ export function App() {
                     className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
                       activeTab === 'alumnos'
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     <span className="text-base sm:text-sm">👥</span>
@@ -776,7 +776,7 @@ export function App() {
                     className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
                       activeTab === 'reportes'
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     <span className="text-base sm:text-sm">📊</span>
