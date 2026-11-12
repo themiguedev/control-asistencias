@@ -172,13 +172,17 @@ export function reconcileStudentAttendance({
 
     for (const classDate of teachingDates) {
       for (const blockId of blocksToCheck) {
-        // Find explicit record if already exists
+        // Find explicit record if already exists (matching student, teacher, and date)
         const existing = existingRecords.find(
           (r) =>
             r.studentId === student.id &&
             r.teacherId === teacher.id &&
             r.classDate === classDate &&
-            (r.blockId === blockId || (!r.blockId && !blockId))
+            // Match blockId or allow fallback when teacher is continuous / null
+            (r.blockId === blockId ||
+              !r.blockId ||
+              !blockId ||
+              teacher.blockType === 'continuous')
         );
 
         if (existing) {

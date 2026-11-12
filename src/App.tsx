@@ -501,7 +501,7 @@ export function App() {
     return INITIAL_STUDENT_ATTENDANCE;
   });
 
-  // On mount: load students & attendances from Supabase if configured
+  // On mount or tab change: refresh students & attendances from Supabase if configured
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
@@ -517,7 +517,7 @@ export function App() {
           setStudents(cloudStudents);
         }
         const cloudAttendances = await getStudentAttendances();
-        if (isMounted && cloudAttendances && cloudAttendances.length > 0) {
+        if (isMounted && cloudAttendances) {
           setStudentAttendanceRecords(cloudAttendances);
         }
       } catch (err) {
@@ -529,7 +529,7 @@ export function App() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [activeTab, isReportsModalOpen]);
 
   useEffect(() => {
     localStorage.setItem('cba-students', JSON.stringify(students));
