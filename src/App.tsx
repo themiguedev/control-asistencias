@@ -18,7 +18,7 @@ import {
   deleteStudent as dbDeleteStudent,
   getStudentAttendances,
   recordBulkStudentAttendance,
-  deleteStudentAttendance as dbDeleteStudentAttendance,
+  deleteStudentAttendanceByTeacherAndDate,
 } from './services/supabaseService';
 import { isSupabaseConfigured } from './lib/supabase';
 
@@ -438,7 +438,21 @@ const INITIAL_STUDENT_ATTENDANCE: StudentAttendanceRecord[] = [
 export function App() {
   const [teacherList] = useState<TeacherWithBlocks[]>(teachers);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>(teachers[0].id);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(INITIAL_RECORDS);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => {
+    const saved = localStorage.getItem('cba-attendance-records');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return INITIAL_RECORDS;
+      }
+    }
+    return INITIAL_RECORDS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('cba-attendance-records', JSON.stringify(attendanceRecords));
+  }, [attendanceRecords]);
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
   const [authenticatedTeachers, setAuthenticatedTeachers] = useState<Record<string, boolean>>({});
@@ -587,23 +601,24 @@ export function App() {
   };
 
   const handleDeleteAttendance = (teacherId: string, classDate: string) => {
-    setAttendanceRecords((prev) =>
-      prev.filter((r) => !(r.teacherId === teacherId && r.classDate === classDate))
-    );
-    setStudentAttendanceRecords((prev) =>
-      prev.filter((r) => !(r.teacherId === teacherId && r.classDate === classDate))
-    );
+    // 1. Eliminar de estado reactivo inmediato
+    setAttendanceRecords((prev) => {
+      const updated = prev.filter((r) => !(r.teacherId === teacherId && r.classDate === classDate));
+      localStorage.setItem('cba-attendance-records', JSON.stringify(updated));
+      return updated;
+    });
 
+    setStudentAttendanceRecords((prev) => {
+      const updated = prev.filter((r) => !(r.teacherId === teacherId && r.classDate === classDate));
+      localStorage.setItem('cba-student-attendance', JSON.stringify(updated));
+      return updated;
+    });
+
+    // 2. Eliminar en Supabase directamente por teacherId y fecha
     if (isSupabaseConfigured) {
-      // Find IDs of attendance records for that teacher and date
-      const toDelete = studentAttendanceRecords.filter(
-        (r) => r.teacherId === teacherId && r.classDate === classDate
+      deleteStudentAttendanceByTeacherAndDate(teacherId, classDate).catch((err: unknown) =>
+        console.warn('[App] Error borrando asistencias del día en Supabase:', err)
       );
-      toDelete.forEach((r) => {
-        dbDeleteStudentAttendance(r.id).catch((err: unknown) =>
-          console.warn('[App] Error borrando asistencia en Supabase:', err)
-        );
-      });
     }
   };
 

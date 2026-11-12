@@ -417,6 +417,33 @@ export const supabaseService = {
     return true;
   },
 
+  /**
+   * Eliminar asistencias de un profesor en una fecha específica
+   */
+  async deleteStudentAttendanceByTeacherAndDate(teacherId: string, classDate: string): Promise<boolean> {
+    const local = getLocal<StudentAttendanceRecord[]>(STORAGE_KEYS.STUDENT_ATTENDANCE, []);
+    const filtered = local.filter((r) => !(r.teacherId === teacherId && r.classDate === classDate));
+    setLocal(STORAGE_KEYS.STUDENT_ATTENDANCE, filtered);
+
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('attendance_records')
+          .delete()
+          .eq('teacher_id', teacherId)
+          .eq('date', classDate);
+        if (error) {
+          console.warn('[supabaseService] Error deleting attendance by teacher and date in Supabase:', error);
+          return false;
+        }
+      } catch (err) {
+        console.warn('[supabaseService] Supabase delete attendance by date failed:', err);
+      }
+    }
+
+    return true;
+  },
+
   // ==========================================
   // PROFESORES (TEACHERS) CRUD & SYNC
   // ==========================================
@@ -504,6 +531,7 @@ export const getStudentAttendances = supabaseService.getStudentAttendances.bind(
 export const recordStudentAttendance = supabaseService.recordStudentAttendance.bind(supabaseService);
 export const recordBulkStudentAttendance = supabaseService.recordBulkStudentAttendance.bind(supabaseService);
 export const deleteStudentAttendance = supabaseService.deleteStudentAttendance.bind(supabaseService);
+export const deleteStudentAttendanceByTeacherAndDate = supabaseService.deleteStudentAttendanceByTeacherAndDate.bind(supabaseService);
 export const getTeachers = supabaseService.getTeachers.bind(supabaseService);
 export const syncTeachers = supabaseService.syncTeachers.bind(supabaseService);
 
