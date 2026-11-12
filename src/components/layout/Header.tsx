@@ -24,43 +24,53 @@ export const Header: React.FC<HeaderProps> = ({
   // Capitalize first letter in Spanish: e.g. "Jueves, 12 de noviembre de 2026"
   const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
 
+  // Short format for compact mobile viewports: e.g. "12 nov."
+  const shortDate = new Intl.DateTimeFormat('es-ES', {
+    day: 'numeric',
+    month: 'short',
+  }).format(today);
+  const capitalizedShortDate = shortDate.charAt(0).toUpperCase() + shortDate.slice(1);
+
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white shadow-md sticky top-0 z-30 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center space-x-3">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3">
+          {/* Logo & Brand Title */}
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
             <img
               src="/logo-team-bellas-artes.jpg"
               alt="Logo Team Bellas Artes BOTS"
-              className="w-11 h-11 rounded-full object-cover border-2 border-blue-500/40 shadow-sm"
+              className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-blue-500/40 shadow-sm shrink-0"
             />
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-bold tracking-tight leading-tight text-white">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight text-white truncate">
                   Control de Asistencias
                 </h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 whitespace-nowrap">
                   Team Bellas Artes
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between sm:justify-end gap-2.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs sm:text-sm font-medium text-slate-200 shadow-sm">
+          {/* Action buttons and date indicator */}
+          <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs sm:text-sm font-medium text-slate-200 shadow-sm min-h-[38px] sm:min-h-[44px]">
               <span role="img" aria-label="calendario">📅</span>
-              <span>{capitalizedDate}</span>
+              <span className="hidden md:inline">{capitalizedDate}</span>
+              <span className="md:hidden">{capitalizedShortDate}</span>
             </div>
 
             {/* Toggle Modo Oscuro / Claro */}
             <button
               type="button"
               onClick={onToggleDarkMode}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700 transition cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-650 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700 transition cursor-pointer min-h-[38px] sm:min-h-[44px] touch-manipulation"
               title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
               aria-label="Alternar modo oscuro"
             >
-              <span>{darkMode ? '☀️' : '🌙'}</span>
+              <span className="text-sm">{darkMode ? '☀️' : '🌙'}</span>
               <span className="hidden md:inline">{darkMode ? 'Claro' : 'Oscuro'}</span>
             </button>
 
@@ -68,10 +78,11 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onLogout}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs sm:text-sm font-medium border border-rose-500/30 transition cursor-pointer"
+                className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 text-rose-300 text-xs sm:text-sm font-medium border border-rose-500/30 transition cursor-pointer min-h-[38px] sm:min-h-[44px] touch-manipulation"
                 title="Cerrar sesión de este profesor"
               >
-                <span>Cerrar sesión</span>
+                <span className="hidden sm:inline">Cerrar sesión</span>
+                <span className="sm:hidden">Salir</span>
                 <span>🔒</span>
               </button>
             )}

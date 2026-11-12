@@ -17,17 +17,17 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     presente: {
       label: 'Presente',
       icon: '✓',
-      classes: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+      classes: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
     },
     ausente: {
       label: 'Ausente',
       icon: '✗',
-      classes: 'bg-rose-100 text-rose-800 border-rose-300',
+      classes: 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-800',
     },
     justificado: {
       label: 'Justificado',
       icon: '!',
-      classes: 'bg-amber-100 text-amber-800 border-amber-300',
+      classes: 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800',
     },
   };
 

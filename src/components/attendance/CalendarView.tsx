@@ -64,7 +64,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       case 'presente':
         return (
           <span
-            className="w-5 h-5 rounded-full bg-emerald-500 text-white text-[11px] font-bold flex items-center justify-center shadow-2xs"
+            className="w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full bg-emerald-500 text-white text-[9px] sm:text-[11px] font-bold flex items-center justify-center shadow-2xs shrink-0"
             title="Presente"
           >
             ✓
@@ -73,7 +73,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       case 'ausente':
         return (
           <span
-            className="w-5 h-5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center shadow-2xs"
+            className="w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full bg-rose-500 text-white text-[9px] sm:text-[11px] font-bold flex items-center justify-center shadow-2xs shrink-0"
             title="Ausente"
           >
             ✗
@@ -82,7 +82,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       case 'justificado':
         return (
           <span
-            className="w-5 h-5 rounded-full bg-amber-500 text-white text-[11px] font-bold flex items-center justify-center shadow-2xs"
+            className="w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full bg-amber-500 text-white text-[9px] sm:text-[11px] font-bold flex items-center justify-center shadow-2xs shrink-0"
             title="Justificado"
           >
             !
@@ -92,30 +92,30 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl p-2.5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Month Header and Navigation Controls */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3 sm:mb-4 px-0.5 sm:px-0">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
+          <h2 className="text-base sm:text-xl font-bold text-slate-800 dark:text-white">
             {monthTitle}
           </h2>
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            Días asignados: {teacher.scheduleDays.join(', ')}
+          <p className="text-[11px] sm:text-xs text-slate-400 dark:text-slate-500">
+            Días asignados: <span className="font-medium text-slate-600 dark:text-slate-300">{teacher.scheduleDays.join(', ')}</span>
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             type="button"
             onClick={goToToday}
-            className="px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg border border-blue-200 dark:border-blue-800 transition cursor-pointer"
+            className="px-2 sm:px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg border border-blue-200 dark:border-blue-800 transition cursor-pointer min-h-[34px] flex items-center justify-center touch-manipulation"
           >
             Hoy
           </button>
           <button
             type="button"
             onClick={prevMonth}
-            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-sm transition cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs sm:text-sm transition cursor-pointer touch-manipulation"
             aria-label="Mes anterior"
           >
             ◀
@@ -123,7 +123,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <button
             type="button"
             onClick={nextMonth}
-            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-sm transition cursor-pointer"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs sm:text-sm transition cursor-pointer touch-manipulation"
             aria-label="Mes siguiente"
           >
             ▶
@@ -132,7 +132,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       </div>
 
       {/* Weekday headers: L M X J V S D */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center">
+      <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-1.5 sm:mb-2 text-center">
         {[
           { key: 'L', label: 'Lunes' },
           { key: 'M', label: 'Martes' },
@@ -147,7 +147,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             <div
               key={day.key}
               title={day.label}
-              className={`text-xs font-bold py-1.5 rounded-md ${
+              className={`text-[10px] sm:text-xs font-bold py-1 sm:py-1.5 rounded-md ${
                 isWeekend
                   ? 'text-slate-400 dark:text-slate-600 bg-slate-50 dark:bg-slate-800/40'
                   : 'text-slate-700 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800'
@@ -165,7 +165,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         {Array.from({ length: mondayOffset }).map((_, i) => (
           <div
             key={`empty-${i}`}
-            className="aspect-square min-h-[50px] sm:min-h-[64px] rounded-xl bg-slate-50/40 dark:bg-slate-800/20 border border-transparent"
+            className="aspect-square min-h-[44px] sm:min-h-[64px] rounded-lg sm:rounded-xl bg-slate-50/40 dark:bg-slate-800/20 border border-transparent"
           />
         ))}
 
@@ -188,7 +188,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               key={`day-${dayNumber}`}
               type="button"
               onClick={() => onSelectDate(dayDate)}
-              className={`relative aspect-square min-h-[52px] sm:min-h-[68px] p-1 sm:p-1.5 rounded-xl border flex flex-col justify-between transition-all cursor-pointer text-left ${
+              className={`relative aspect-square min-h-[44px] sm:min-h-[68px] p-0.5 sm:p-1.5 rounded-lg sm:rounded-xl border flex flex-col justify-between transition-all cursor-pointer text-left touch-manipulation ${
                 isTeaching
                   ? isCurrentSelected
                     ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/40 shadow-sm'
@@ -199,9 +199,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               } ${isCurrentToday ? 'ring-2 ring-blue-500 font-bold' : ''}`}
             >
               {/* Day Number and Today Marker */}
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-between w-full px-0.5">
                 <span
-                  className={`text-xs sm:text-sm font-semibold ${
+                  className={`text-[11px] sm:text-sm font-semibold leading-none ${
                     isTeaching
                       ? 'text-slate-900 dark:text-slate-100 font-bold'
                       : 'text-slate-400 dark:text-slate-600 font-normal'
@@ -212,7 +212,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                 {isCurrentToday && (
                   <span
-                    className="w-1.5 h-1.5 rounded-full bg-blue-500"
+                    className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"
                     title="Hoy"
                   />
                 )}
@@ -223,14 +223,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 {isTeaching ? (
                   isSplit ? (
                     // Split blocks: show indicators for each block
-                    <div className="flex items-center justify-center gap-1">
+                    <div className="flex items-center justify-center gap-0.5 sm:gap-1">
                       {teacher.blocks.map((b) => {
                         const rec = dayRecords.find((r) => r.blockId === b.id);
                         if (rec) {
                           return (
                             <span
                               key={b.id}
-                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full text-[9px] font-bold text-white flex items-center justify-center ${
+                              className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full text-[8px] sm:text-[9px] font-bold text-white flex items-center justify-center shrink-0 ${
                                 rec.status === 'presente'
                                   ? 'bg-emerald-500'
                                   : rec.status === 'ausente'
@@ -251,7 +251,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         return (
                           <span
                             key={b.id}
-                            className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                            className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shrink-0"
                             title={`${b.label}: Pendiente`}
                           />
                         );
@@ -263,14 +263,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       renderStatusSymbol(dayRecords[0].status)
                     ) : (
                       <span
-                        className="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shrink-0"
                         title="Programado - Sin registro"
                       />
                     )
                   )
                 ) : (
                   // Blank for non-teaching days
-                  <span className="h-4" />
+                  <span className="h-3.5 sm:h-4" />
                 )}
               </div>
             </button>
@@ -279,31 +279,31 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs text-slate-500 dark:text-slate-400">
-        <div className="flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded-full bg-emerald-500 text-white font-bold text-[10px] flex items-center justify-center">
+      <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-center gap-2 sm:gap-5 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-emerald-500 text-white font-bold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0">
             ✓
           </span>
           <span>Presente</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded-full bg-rose-500 text-white font-bold text-[10px] flex items-center justify-center">
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-rose-500 text-white font-bold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0">
             ✗
           </span>
           <span>Ausente</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded-full bg-amber-500 text-white font-bold text-[10px] flex items-center justify-center">
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-amber-500 text-white font-bold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0">
             !
           </span>
           <span>Justificado</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" />
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shrink-0" />
           <span>Pendiente</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded-md border-2 border-blue-500 bg-white dark:bg-slate-800" />
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-md border-2 border-blue-500 bg-white dark:bg-slate-800 shrink-0" />
           <span>Hoy</span>
         </div>
       </div>

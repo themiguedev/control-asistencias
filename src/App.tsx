@@ -265,7 +265,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 overflow-x-hidden">
       {/* 1. Header with Dark Mode Toggle */}
       <Header
         teacherName={isAuthenticated ? activeTeacher.name : undefined}
@@ -283,10 +283,10 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 pb-8 sm:pb-12">
         {!isAuthenticated ? (
           /* 3. PIN Authentication Screen */
-          <div className="py-6">
+          <div className="py-4 sm:py-6">
             <PinLogin
               teacherName={activeTeacher.name}
               expectedPin={activeTeacher.pin}
@@ -295,35 +295,41 @@ export function App() {
           </div>
         ) : (
           /* Authenticated Dashboard */
-          <div className="space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             {/* View Switcher: Control Asistencias vs Nómina de Alumnos */}
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setActiveTab('asistencias')}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border ${
+                  className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] ${
                     activeTab === 'asistencias'
                       ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
                       : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
                   }`}
                 >
-                  <span>📅</span>
-                  <span>Control de Asistencias</span>
+                  <span className="text-base sm:text-sm">📅</span>
+                  <span className="hidden sm:inline">Control de Asistencias</span>
+                  <span className="sm:hidden">Asistencias</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('alumnos')}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border ${
+                  className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] ${
                     activeTab === 'alumnos'
                       ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
                       : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
                   }`}
                 >
-                  <span>👥</span>
-                  <span>Registrar / Ver Alumnos</span>
-                  <span className="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  <span className="text-base sm:text-sm">👥</span>
+                  <span className="hidden sm:inline">Registrar / Ver Alumnos</span>
+                  <span className="sm:hidden">Alumnos</span>
+                  <span className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
+                    activeTab === 'alumnos'
+                      ? 'bg-blue-500/80 text-white'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  }`}>
                     {students.filter((s) => s.teacherId === activeTeacher.id).length}
                   </span>
                 </button>
@@ -341,7 +347,7 @@ export function App() {
               />
             ) : (
               /* Sección de Control de Asistencias */
-              <div className="space-y-6">
+              <div className="space-y-5 sm:space-y-6">
                 {/* Top Stats Summary */}
                 <section aria-label="Resumen de asistencias">
                   <SummaryCard
@@ -352,7 +358,7 @@ export function App() {
                 </section>
 
                 {/* Grid: Calendar View (left/top) + Attendance Form (right/bottom) */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
                   {/* Calendar Column */}
                   <div className="lg:col-span-7">
                     <CalendarView
