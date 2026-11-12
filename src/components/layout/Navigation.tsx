@@ -17,7 +17,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs mb-4 sm:mb-6 transition-colors">
       <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
-        <div className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto py-2 sm:py-2.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden scroll-smooth touch-pan-x">
+        <div className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto no-scrollbar py-2 sm:py-2.5 scroll-smooth touch-pan-x">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1 sm:mr-2 hidden md:inline-block shrink-0">
             Docentes:
           </span>

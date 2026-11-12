@@ -480,7 +480,10 @@ export function App() {
     const saved = localStorage.getItem('cba-students');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return Array.from(new Map(parsed.map((item: Student) => [item.id, item])).values());
+        }
       } catch {
         return INITIAL_STUDENTS;
       }
@@ -514,7 +517,8 @@ export function App() {
         }
         const cloudStudents = await getStudents();
         if (isMounted && cloudStudents && cloudStudents.length > 0) {
-          setStudents(cloudStudents);
+          const unique = Array.from(new Map(cloudStudents.map((item: Student) => [item.id, item])).values());
+          setStudents(unique);
         }
         const cloudAttendances = await getStudentAttendances();
         if (isMounted && cloudAttendances) {
@@ -728,11 +732,11 @@ export function App() {
             {/* View Switcher: Control Asistencias vs Nómina de Alumnos vs Reportes Excel */}
             <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div className="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar scroll-smooth touch-pan-x py-0.5">
                   <button
                     type="button"
                     onClick={() => setActiveTab('asistencias')}
-                    className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] ${
+                    className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
                       activeTab === 'asistencias'
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
                         : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
@@ -746,7 +750,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={() => setActiveTab('alumnos')}
-                    className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] ${
+                    className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
                       activeTab === 'alumnos'
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
                         : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
@@ -756,7 +760,7 @@ export function App() {
                     <span className="hidden sm:inline">Registrar / Ver Alumnos</span>
                     <span className="sm:hidden">Alumnos</span>
                     <span
-                      className={`hidden sm:inline text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
+                      className={`text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-full font-semibold ${
                         activeTab === 'alumnos'
                           ? 'bg-blue-500/80 text-white'
                           : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -769,7 +773,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={() => setActiveTab('reportes')}
-                    className={`inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] ${
+                    className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
                       activeTab === 'reportes'
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
                         : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'

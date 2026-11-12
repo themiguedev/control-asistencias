@@ -64,8 +64,9 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const capitalizedDateTitle =
     formattedDateTitle.charAt(0).toUpperCase() + formattedDateTitle.slice(1);
 
-  // Filter students belonging to this teacher
-  const teacherStudents = students.filter((s) => s.teacherId === teacher.id);
+  // Filter students belonging to this teacher and deduplicate by id
+  const rawTeacherStudents = students.filter((s) => s.teacherId === teacher.id);
+  const teacherStudents = Array.from(new Map(rawTeacherStudents.map((s) => [s.id, s])).values());
 
   // Teacher blocks state
   const [blockStates] = useState<Record<string, BlockState>>(() => {
@@ -278,17 +279,17 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     return (
       <div
         key={student.id}
-        className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border gap-2.5 transition-all ${
+        className={`flex items-center justify-between p-2.5 sm:p-3 rounded-xl border gap-2 transition-all ${
           isMarked
             ? 'bg-blue-50/40 dark:bg-slate-800/80 border-emerald-500/60 dark:border-emerald-500/50 shadow-sm'
             : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
         }`}
       >
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* Ganchito indicador con color dinamico segun la seleccion */}
+        <div className="min-w-0 flex-1 pr-1">
+          {/* Fila nombre con indicador de estado alineado */}
+          <div className="flex items-center gap-2">
             <span
-              className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-all shrink-0 ${
+              className={`inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full text-[11px] sm:text-xs font-bold transition-all shrink-0 ${
                 !isMarked
                   ? 'border border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800'
                   : currentStatus === 'presente'
@@ -306,37 +307,43 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
               {!isMarked || !currentStatus ? '—' : currentStatus === 'presente' ? '✓' : currentStatus === 'ausente' ? '✗' : '!'}
             </span>
 
-            <span className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm truncate">
+            <span className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm truncate leading-tight">
               {student.fullName}
             </span>
-            {student.teamName && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                <span>🤖</span>
-                <span>{student.teamName}</span>
-              </span>
-            )}
           </div>
-          {student.identifier && (
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono block mt-0.5 ml-8.5">
-              {student.identifier}
-            </span>
+
+          {/* Badge de equipo o identificador debajo del nombre */}
+          {(student.teamName || student.identifier) && (
+            <div className="flex items-center gap-1.5 flex-wrap pl-7 sm:pl-8 mt-0.5">
+              {student.teamName && (
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.2 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 leading-tight">
+                  <span className="text-[10px]">🤖</span>
+                  <span className="truncate max-w-[120px] sm:max-w-none">{student.teamName}</span>
+                </span>
+              )}
+              {student.identifier && (
+                <span className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                  {student.identifier}
+                </span>
+              )}
+            </div>
           )}
         </div>
 
-        {/* 3 Status Toggle Buttons with enhanced selected contrast */}
-        <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+        {/* 3 Status Toggle Buttons: Píldoras compactas con iconos en mobile y texto en desktop */}
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           <button
             type="button"
             disabled={!canEdit}
             onClick={() => handleStudentStatusChange(student.id, 'presente')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 touch-manipulation min-h-[38px] ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 touch-manipulation h-[34px] sm:min-h-[38px] min-w-[34px] ${
               currentStatus === 'presente'
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 ring-2 ring-emerald-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
-                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-60 hover:opacity-100'
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 ring-2 ring-emerald-400 ring-offset-1 sm:ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
+                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-70 hover:opacity-100'
             } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
-            title="Presente"
+            title="Presente (P)"
           >
-            <span className="text-sm">✓</span>
+            <span className="text-sm font-bold leading-none">✓</span>
             <span className="hidden sm:inline">Presente</span>
           </button>
 
@@ -344,14 +351,14 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             type="button"
             disabled={!canEdit}
             onClick={() => handleStudentStatusChange(student.id, 'ausente')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 touch-manipulation min-h-[38px] ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 touch-manipulation h-[34px] sm:min-h-[38px] min-w-[34px] ${
               currentStatus === 'ausente'
-                ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/30 ring-2 ring-rose-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
-                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-60 hover:opacity-100'
+                ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/30 ring-2 ring-rose-400 ring-offset-1 sm:ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
+                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-70 hover:opacity-100'
             } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
-            title="Ausente"
+            title="Ausente (A)"
           >
-            <span className="text-sm">✗</span>
+            <span className="text-sm font-bold leading-none">✗</span>
             <span className="hidden sm:inline">Ausente</span>
           </button>
 
@@ -359,14 +366,14 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             type="button"
             disabled={!canEdit}
             onClick={() => handleStudentStatusChange(student.id, 'justificado')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 touch-manipulation min-h-[38px] ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 touch-manipulation h-[34px] sm:min-h-[38px] min-w-[34px] ${
               currentStatus === 'justificado'
-                ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-md shadow-amber-600/30 ring-2 ring-amber-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
-                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-60 hover:opacity-100'
+                ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-md shadow-amber-600/30 ring-2 ring-amber-400 ring-offset-1 sm:ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
+                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-70 hover:opacity-100'
             } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
-            title="Justificado"
+            title="Justificado (J)"
           >
-            <span className="text-sm">!</span>
+            <span className="text-sm font-bold leading-none">!</span>
             <span className="hidden sm:inline">Justif.</span>
           </button>
         </div>
@@ -580,9 +587,9 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           )}
         </div>
 
-        {/* Action Button */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800">
-          <div className="text-xs text-slate-400 dark:text-slate-500 text-center sm:text-left">
+        {/* Action Button: Sticky bottom bar on mobile for easy thumb access */}
+        <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800 sticky sm:static bottom-0 -mx-4 -mb-4 sm:mx-0 sm:mb-0 p-3 sm:p-0 bg-white/95 dark:bg-slate-900/95 sm:bg-transparent backdrop-blur-sm sm:backdrop-blur-none border-t sm:border-t-0 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] sm:shadow-none z-10">
+          <div className="text-xs text-slate-400 dark:text-slate-500 text-center sm:text-left hidden min-[400px]:block">
             {isAlreadyRegistered && !isEditMode
               ? 'Asistencia guardada. Haz clic en "Modificar" arriba para cambiar notas.'
               : 'Se registrará la asistencia del docente y de los alumnos para esta fecha.'}
@@ -591,9 +598,10 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           {canEdit && (
             <button
               type="submit"
-              className="w-full sm:w-auto px-6 py-3 sm:py-2.5 min-h-[44px] rounded-xl text-sm font-semibold transition cursor-pointer shadow-sm touch-manipulation flex items-center justify-center bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-500/20 active:scale-[0.98]"
+              className="w-full sm:w-auto px-6 py-3.5 sm:py-2.5 min-h-[48px] rounded-xl text-sm font-bold transition cursor-pointer shadow-md sm:shadow-sm touch-manipulation flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-500/25 active:scale-[0.98]"
             >
-              {isEditMode ? 'Actualizar Asistencias' : 'Guardar Asistencia'}
+              <span>💾</span>
+              <span>{isEditMode ? 'Actualizar Asistencias' : 'Guardar Asistencia'}</span>
             </button>
           )}
         </div>

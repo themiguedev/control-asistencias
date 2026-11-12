@@ -56,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Action buttons and date indicator */}
           <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5">
-            <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs sm:text-sm font-medium text-slate-200 shadow-sm min-h-[38px] sm:min-h-[44px]">
+            <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs sm:text-sm font-medium text-slate-200 shadow-sm min-h-[44px]">
               <span role="img" aria-label="calendario">📅</span>
               <span className="hidden md:inline">{capitalizedDate}</span>
               <span className="md:hidden">{capitalizedShortDate}</span>
@@ -66,7 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onToggleDarkMode}
-              className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-650 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700 transition cursor-pointer min-h-[38px] sm:min-h-[44px] touch-manipulation"
+              className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-650 text-slate-200 text-xs sm:text-sm font-medium border border-slate-700 transition cursor-pointer min-h-[44px] min-w-[44px] touch-manipulation"
               title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
               aria-label="Alternar modo oscuro"
             >
@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onLogout}
-                className="inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 text-rose-300 text-xs sm:text-sm font-medium border border-rose-500/30 transition cursor-pointer min-h-[38px] sm:min-h-[44px] touch-manipulation"
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 text-rose-300 text-xs sm:text-sm font-medium border border-rose-500/30 transition cursor-pointer min-h-[44px] touch-manipulation"
                 title="Cerrar sesión de este profesor"
               >
                 <span className="hidden sm:inline">Cerrar sesión</span>
