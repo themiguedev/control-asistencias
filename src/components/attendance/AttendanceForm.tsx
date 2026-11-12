@@ -6,10 +6,8 @@ import type {
   StudentAttendanceRecord,
   Student,
   DayOfWeek,
-  Block,
 } from '../../types';
 import { isTeachingDay, formatDate, getDayName, formatTimeRange12h } from '../../utils/schedule';
-import { StatusBadge } from './StatusBadge';
 
 export interface NewAttendanceRecordData {
   teacherId: string;
@@ -70,7 +68,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const teacherStudents = students.filter((s) => s.teacherId === teacher.id);
 
   // Teacher blocks state
-  const [blockStates, setBlockStates] = useState<Record<string, BlockState>>(() => {
+  const [blockStates] = useState<Record<string, BlockState>>(() => {
     const initialStates: Record<string, BlockState> = {};
     teacher.blocks.forEach((block) => {
       const found = existingRecords.find(
@@ -156,16 +154,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     );
 
   const canEdit = !isAlreadyRegistered || isEditMode;
-
-  const handleTeacherStatusChange = (blockId: string, status: AttendanceStatus) => {
-    setBlockStates((prev) => ({
-      ...prev,
-      [blockId]: {
-        notes: '',
-        status,
-      },
-    }));
-  };
 
   const handleStudentStatusChange = (studentId: string, status: AttendanceStatus) => {
     setStudentStates((prev) => ({
@@ -274,67 +262,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     },
     { presentes: 0, ausentes: 0, justificados: 0 }
   );
-
-  const renderStatusRadioOptions = (block: Block, currentStatus: AttendanceStatus) => {
-    const options: {
-      status: AttendanceStatus;
-      label: string;
-      activeClass: string;
-      icon: string;
-    }[] = [
-      {
-        status: 'presente',
-        label: 'Presente',
-        activeClass:
-          'bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-200 dark:shadow-none',
-        icon: '✓',
-      },
-      {
-        status: 'ausente',
-        label: 'Ausente',
-        activeClass:
-          'bg-rose-500 text-white border-rose-500 shadow-sm shadow-rose-200 dark:shadow-none',
-        icon: '✗',
-      },
-      {
-        status: 'justificado',
-        label: 'Justificado',
-        activeClass:
-          'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-200 dark:shadow-none',
-        icon: '!',
-      },
-    ];
-
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-        {options.map((opt) => {
-          const isChecked = currentStatus === opt.status;
-          return (
-            <label
-              key={opt.status}
-              className={`flex items-center justify-center gap-2 py-2.5 px-3 min-h-[44px] rounded-xl border text-xs sm:text-sm font-semibold transition cursor-pointer select-none touch-manipulation active:scale-[0.98] ${
-                isChecked
-                  ? opt.activeClass
-                  : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
-              } ${!canEdit ? 'opacity-80 cursor-not-allowed' : ''}`}
-            >
-              <input
-                type="radio"
-                name={`status-${block.id}`}
-                value={opt.status}
-                checked={isChecked}
-                disabled={!canEdit}
-                onChange={() => handleTeacherStatusChange(block.id, opt.status)}
-                className="sr-only"
-              />
-              <span className="font-bold text-sm shrink-0">{opt.icon}</span>
-              <span className="truncate">{opt.label}</span>
-            </label>
-          );
-        })}
-      </div>
-    );
-  };
 
   const renderStudentRow = (student: Student) => {
     const currentStatus = studentStates[student.id]?.status || 'presente';
@@ -522,76 +449,8 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-        {/* 1. SECCIÓN: ASISTENCIA DEL PROFESOR */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
-            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <span>👨‍🏫</span>
-              <span>Asistencia del Profesor</span>
-            </h4>
-          </div>
-
-          {teacher.blocks.map((block, idx) => {
-            const blockState = blockStates[block.id] || {
-              status: 'presente',
-              notes: '',
-            };
-
-            return (
-              <div
-                key={block.id}
-                className={`rounded-xl p-3.5 sm:p-5 border transition ${
-                  isSplit
-                    ? 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/60 hover:border-blue-200 dark:hover:border-blue-500/30'
-                    : 'bg-white dark:bg-slate-900 border-transparent p-0 sm:p-0'
-                }`}
-              >
-                {isSplit && (
-                  <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-700/80 gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center shrink-0">
-                        {idx + 1}
-                      </span>
-                      <h4 className="font-bold text-slate-800 dark:text-white text-sm sm:text-base">
-                        {block.label}
-                      </h4>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {isAlreadyRegistered && !isEditMode && (
-                        <StatusBadge status={blockState.status} size="sm" />
-                      )}
-                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                        🕒 {formatTimeRange12h(block.startTime, block.endTime)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {!isSplit && (
-                  <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between mb-3 gap-1.5">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                      Estado del profesor:
-                    </span>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {isAlreadyRegistered && !isEditMode && (
-                        <StatusBadge status={blockState.status} size="sm" />
-                      )}
-                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                        🕒 {formatTimeRange12h(block.startTime, block.endTime)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Radio Group */}
-                <div>{renderStatusRadioOptions(block, blockState.status)}</div>
-              </div>
-            );
-          })}
-        </div>
-
         {/* 2. SECCIÓN: ASISTENCIA DE ALUMNOS */}
-        <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
