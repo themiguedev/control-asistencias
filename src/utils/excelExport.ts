@@ -109,7 +109,6 @@ export function buildTeamTeacherSheet(
   rows.push([
     'Profesor',
     'Equipo de Robótica',
-    'Cédula / Identificador',
     'Alumno',
     'Bloque / Horario',
     colLunes,
@@ -158,7 +157,6 @@ export function buildTeamTeacherSheet(
       rows.push([
         teacher.name,
         item.teamName,
-        item.student.identifier || 'S/I',
         item.student.fullName,
         item.blockLabel || teacher.blocks[0]?.label || 'Clase Regular',
         daysStatuses[0],
@@ -182,7 +180,6 @@ export function buildTeamTeacherSheet(
   ws['!cols'] = [
     { wch: 25 }, // Profesor
     { wch: 20 }, // Equipo
-    { wch: 18 }, // Cédula
     { wch: 28 }, // Alumno
     { wch: 24 }, // Bloque
     { wch: 20 }, // Lunes
@@ -246,7 +243,6 @@ export function buildTeacherStudentsSheet(
   rows.push([
     'Profesor',
     'Alumno',
-    'Cédula / Identificador',
     'Equipo',
     'Bloque / Horario',
     'Días de Clase',
@@ -297,7 +293,6 @@ export function buildTeacherStudentsSheet(
       rows.push([
         teacher.name,
         item.student.fullName,
-        item.student.identifier || 'S/I',
         item.teamName,
         item.blockLabel || teacher.blocks[0]?.label || 'Clase Regular',
         scheduleDaysStr,
@@ -321,7 +316,6 @@ export function buildTeacherStudentsSheet(
   ws['!cols'] = [
     { wch: 25 }, // Profesor
     { wch: 28 }, // Alumno
-    { wch: 18 }, // Cédula
     { wch: 18 }, // Equipo
     { wch: 24 }, // Bloque / Horario
     { wch: 20 }, // Días de Clase

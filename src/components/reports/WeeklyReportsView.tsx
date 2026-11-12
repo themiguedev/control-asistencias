@@ -430,7 +430,7 @@ export function WeeklyReportsView({
           <div className="flex items-center gap-2 flex-1 min-w-[180px]">
             <input
               type="text"
-              placeholder="Buscar por nombre o cédula..."
+              placeholder="Buscar por nombre de alumno..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none placeholder-slate-400"
@@ -518,7 +518,6 @@ export function WeeklyReportsView({
                           <thead className="bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                             <tr>
                               <th className="py-2.5 px-3">Alumno</th>
-                              <th className="py-2.5 px-2">Cédula</th>
                               <th className="py-2.5 px-2">Horario / Bloque</th>
                               {selectedWeek.weekDays.map((d) => (
                                 <th key={d.dateStr} className="py-2.5 px-2 text-center">
@@ -543,9 +542,6 @@ export function WeeklyReportsView({
                               >
                                 <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                                   {item.student.fullName}
-                                </td>
-                                <td className="py-2.5 px-2 text-slate-500 whitespace-nowrap">
-                                  {item.student.identifier || '—'}
                                 </td>
                                 <td className="py-2.5 px-2 text-slate-500 whitespace-nowrap">
                                   {item.blockLabel || teacher.blocks[0]?.label || 'Regular'}
@@ -639,7 +635,6 @@ export function WeeklyReportsView({
                       <thead className="bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                         <tr>
                           <th className="py-2.5 px-3">Alumno</th>
-                          <th className="py-2.5 px-2">Cédula</th>
                           <th className="py-2.5 px-2">Equipo</th>
                           <th className="py-2.5 px-2">Bloque / Turno</th>
                           {selectedWeek.weekDays.map((d) => (
@@ -668,9 +663,6 @@ export function WeeklyReportsView({
                           >
                             <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                               {item.student.fullName}
-                            </td>
-                            <td className="py-2.5 px-2 text-slate-500 whitespace-nowrap">
-                              {item.student.identifier || '—'}
                             </td>
                             <td className="py-2.5 px-2 whitespace-nowrap">
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
