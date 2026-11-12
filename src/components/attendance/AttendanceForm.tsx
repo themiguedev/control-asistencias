@@ -23,6 +23,7 @@ interface AttendanceFormProps {
   date: Date;
   existingRecords?: AttendanceRecord[];
   onSubmit: (records: NewAttendanceRecordData[]) => void;
+  onDeleteAttendance?: (teacherId: string, classDate: string) => void;
 }
 
 interface BlockState {
@@ -35,6 +36,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   date,
   existingRecords = [],
   onSubmit,
+  onDeleteAttendance,
 }) => {
   const dateStr = formatDate(date);
   const isValidClassDay = isTeachingDay(teacher, date);
@@ -233,8 +235,23 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-bold">
               <span>✓</span>
-              <span>Ya registrado</span>
+              <span>Registrado</span>
             </span>
+            {onDeleteAttendance && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm(`¿Estás seguro de eliminar el registro de asistencia del ${capitalizedDateTitle}?`)) {
+                    onDeleteAttendance(teacher.id, dateStr);
+                  }
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition cursor-pointer"
+                title="Eliminar asistencia de esta fecha"
+              >
+                <span>🗑️</span>
+                <span>Eliminar</span>
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -337,7 +354,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-slate-400 dark:text-slate-500">
             {isAlreadyRegistered
-              ? 'Para modificar asistencias pasadas contacte a administración.'
+              ? 'Puedes eliminar el registro arriba si necesitas volver a registrar.'
               : 'Verifique los datos antes de registrar.'}
           </div>
 
@@ -350,7 +367,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-500/20'
             }`}
           >
-            {isAlreadyRegistered ? 'Asistencia ya registrada' : 'Guardar Asistencia'}
+            {isAlreadyRegistered ? 'Asistencia registrada' : 'Guardar Asistencia'}
           </button>
         </div>
       </form>

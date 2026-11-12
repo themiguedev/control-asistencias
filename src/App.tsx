@@ -239,6 +239,12 @@ export function App() {
     });
   };
 
+  const handleDeleteAttendance = (teacherId: string, classDate: string) => {
+    setAttendanceRecords((prev) =>
+      prev.filter((r) => !(r.teacherId === teacherId && r.classDate === classDate))
+    );
+  };
+
   const handleAddStudent = (newStudentData: Omit<Student, 'id' | 'createdAt'>) => {
     const newStudent: Student = {
       ...newStudentData,
@@ -362,6 +368,7 @@ export function App() {
                       date={selectedDate}
                       existingRecords={attendanceRecords}
                       onSubmit={handleAddAttendance}
+                      onDeleteAttendance={handleDeleteAttendance}
                     />
                   </div>
                 </div>
