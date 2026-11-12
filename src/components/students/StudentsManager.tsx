@@ -15,15 +15,19 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
   students,
   onAddStudent,
   onDeleteStudent,
+  onUpdateStudent,
 }) => {
   const [fullName, setFullName] = useState('');
-  const [teamName, setTeamName] = useState('');
   const [selectedBlockId, setSelectedBlockId] = useState<string>(
     teacher.blocks[0]?.id || ''
   );
   const [filterBlockId, setFilterBlockId] = useState<string>('all');
   const [filterTeam, setFilterTeam] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Editing team state
+  const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
+  const [editTeamValue, setEditTeamValue] = useState('');
 
   // Support teams for Miguelangel and Luis
   const supportsTeams =
@@ -59,11 +63,31 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
       teacherId: teacher.id,
       fullName: fullName.trim(),
       blockId: isSplit ? selectedBlockId : null,
-      teamName: supportsTeams && teamName.trim() ? teamName.trim() : null,
+      teamName: null,
     });
 
     setFullName('');
-    setTeamName('');
+  };
+
+  const handleStartEditTeam = (student: Student) => {
+    setEditingStudentId(student.id);
+    setEditTeamValue(student.teamName || '');
+  };
+
+  const handleSaveTeam = (student: Student) => {
+    if (onUpdateStudent) {
+      onUpdateStudent({
+        ...student,
+        teamName: editTeamValue.trim() ? editTeamValue.trim() : null,
+      });
+    }
+    setEditingStudentId(null);
+    setEditTeamValue('');
+  };
+
+  const handleCancelEditTeam = () => {
+    setEditingStudentId(null);
+    setEditTeamValue('');
   };
 
   return (
@@ -109,46 +133,6 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
-
-            {supportsTeams && (
-              <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                  Equipo / Robot asignado <span className="text-slate-400 dark:text-slate-500 font-normal">(opcional)</span>:
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                    placeholder="Ej. Equipo Alfa, Bot 1, WRO Team..."
-                    list="existing-teams-list"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                  />
-                  {existingTeams.length > 0 && (
-                    <datalist id="existing-teams-list">
-                      {existingTeams.map((team) => (
-                        <option key={team} value={team} />
-                      ))}
-                    </datalist>
-                  )}
-                </div>
-                {existingTeams.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    <span className="text-[10px] text-slate-400">Existentes:</span>
-                    {existingTeams.map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setTeamName(t)}
-                        className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 transition cursor-pointer"
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
 
             {isSplit && (
               <div>
@@ -241,26 +225,88 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                   (b) => b.id === student.blockId
                 );
 
+                const isEditingThisStudent = editingStudentId === student.id;
+
                 return (
                   <div
                     key={student.id}
-                    className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-blue-200 dark:hover:border-blue-900/60 transition shadow-2xs"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-blue-200 dark:hover:border-blue-900/60 transition shadow-2xs gap-3"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-200 dark:border-blue-800">
+                      <span className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-200 dark:border-blue-800 shrink-0">
                         {idx + 1}
                       </span>
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h5 className="text-sm font-bold text-slate-800 dark:text-white">
                             {student.fullName}
                           </h5>
-                          {student.teamName && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                              🤖 {student.teamName}
-                            </span>
+
+                          {supportsTeams && !isEditingThisStudent && (
+                            student.teamName ? (
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditTeam(student)}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-200 dark:hover:bg-blue-800/60 transition cursor-pointer"
+                                title="Clic para cambiar equipo"
+                              >
+                                <span>🤖 {student.teamName}</span>
+                                <span className="text-[10px] opacity-70">✎</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleStartEditTeam(student)}
+                                className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer"
+                                title="Asignar a un equipo"
+                              >
+                                <span>+ Asignar equipo</span>
+                              </button>
+                            )
                           )}
                         </div>
+
+                        {/* Inline Team Editor */}
+                        {supportsTeams && isEditingThisStudent && (
+                          <div className="mt-2 flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-blue-200 dark:border-blue-900/50">
+                            <span className="text-xs">🤖</span>
+                            <input
+                              type="text"
+                              value={editTeamValue}
+                              onChange={(e) => setEditTeamValue(e.target.value)}
+                              placeholder="Nombre del equipo..."
+                              list="teams-edit-options"
+                              className="px-2 py-1 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveTeam(student);
+                                if (e.key === 'Escape') handleCancelEditTeam();
+                              }}
+                            />
+                            {existingTeams.length > 0 && (
+                              <datalist id="teams-edit-options">
+                                {existingTeams.map((t) => (
+                                  <option key={t} value={t} />
+                                ))}
+                              </datalist>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleSaveTeam(student)}
+                              className="px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold cursor-pointer transition"
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCancelEditTeam}
+                              className="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-300 text-[11px] font-medium cursor-pointer transition"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        )}
+
                         {assignedBlock && (
                           <div className="mt-1">
                             <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[11px] font-medium border border-blue-200 dark:border-blue-800/60">
@@ -271,14 +317,16 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => onDeleteStudent(student.id)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-                      title="Eliminar alumno"
-                    >
-                      🗑️
-                    </button>
+                    <div className="flex items-center justify-end">
+                      <button
+                        type="button"
+                        onClick={() => onDeleteStudent(student.id)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                        title="Eliminar alumno"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                 );
               })}

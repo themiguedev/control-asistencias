@@ -258,6 +258,12 @@ export function App() {
     setStudents((prev) => prev.filter((s) => s.id !== studentId));
   };
 
+  const handleUpdateStudent = (updatedStudent: Student) => {
+    setStudents((prev) =>
+      prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s))
+    );
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* 1. Header with Dark Mode Toggle */}
@@ -331,6 +337,7 @@ export function App() {
                 students={students}
                 onAddStudent={handleAddStudent}
                 onDeleteStudent={handleDeleteStudent}
+                onUpdateStudent={handleUpdateStudent}
               />
             ) : (
               /* Sección de Control de Asistencias */
