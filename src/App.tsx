@@ -817,6 +817,7 @@ export function App() {
                 students={students}
                 studentAttendanceRecords={studentAttendanceRecords}
                 activeTeacher={activeTeacher}
+                selectedDate={selectedDate}
               />
             ) : (
               /* Sección de Control de Asistencias */
@@ -876,6 +877,7 @@ export function App() {
         students={students}
         studentAttendanceRecords={studentAttendanceRecords}
         activeTeacher={activeTeacher}
+        selectedDate={selectedDate}
       />
 
       {/* Modal para Editar Horario y Bloques del Profesor */}

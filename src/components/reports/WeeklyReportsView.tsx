@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { TeacherWithBlocks, Student, StudentAttendanceRecord, WeekRange } from '../../types';
 import {
   getWeekRange,
@@ -18,6 +18,7 @@ interface WeeklyReportsViewProps {
   students: Student[];
   studentAttendanceRecords: StudentAttendanceRecord[];
   activeTeacher?: TeacherWithBlocks;
+  selectedDate?: Date;
 }
 
 export function WeeklyReportsView({
@@ -25,6 +26,7 @@ export function WeeklyReportsView({
   students,
   studentAttendanceRecords,
   activeTeacher,
+  selectedDate,
 }: WeeklyReportsViewProps) {
   const [today] = useState<Date>(() => new Date());
 
@@ -32,8 +34,49 @@ export function WeeklyReportsView({
   const availableWeeks = useMemo(() => getAvailableWeeks(today, 8, 2), [today]);
   const currentWeek = useMemo(() => getWeekRange(today), [today]);
 
-  // Selected week state (defaults to current week)
-  const [selectedWeekLabel, setSelectedWeekLabel] = useState<string>(currentWeek.label);
+  // Determine which week has recorded data or matches selectedDate
+  const defaultWeekLabel = useMemo(() => {
+    // 1. If selectedDate was provided, use the week containing selectedDate if in availableWeeks
+    if (selectedDate) {
+      const selectedDateWeek = getWeekRange(selectedDate);
+      const match = availableWeeks.find((w) => w.label === selectedDateWeek.label);
+      if (match) return match.label;
+    }
+
+    // 2. Otherwise find the most recent week in availableWeeks that has actual studentAttendanceRecords
+    if (studentAttendanceRecords && studentAttendanceRecords.length > 0) {
+      const recordedDates = new Set(studentAttendanceRecords.map((r) => r.classDate));
+      for (const w of availableWeeks) {
+        const hasData = w.weekDays.some((d) => recordedDates.has(d.dateStr));
+        if (hasData) {
+          // If current week has data, stay on current week, else check others
+          if (w.label === currentWeek.label) return w.label;
+        }
+      }
+      // Look for the most recent week with records
+      for (let i = availableWeeks.length - 1; i >= 0; i--) {
+        const w = availableWeeks[i];
+        if (w.weekDays.some((d) => recordedDates.has(d.dateStr))) {
+          return w.label;
+        }
+      }
+    }
+
+    return currentWeek.label;
+  }, [availableWeeks, currentWeek, selectedDate, studentAttendanceRecords]);
+
+  // Selected week state (initialized to defaultWeekLabel)
+  const [selectedWeekLabel, setSelectedWeekLabel] = useState<string>(defaultWeekLabel);
+
+  // Update selected week if selectedDate changes
+  useEffect(() => {
+    if (selectedDate) {
+      const selectedDateWeek = getWeekRange(selectedDate);
+      if (availableWeeks.some((w) => w.label === selectedDateWeek.label)) {
+        setSelectedWeekLabel(selectedDateWeek.label);
+      }
+    }
+  }, [selectedDate, availableWeeks]);
 
   const selectedWeek: WeekRange = useMemo(() => {
     return availableWeeks.find((w) => w.label === selectedWeekLabel) || currentWeek;
@@ -41,6 +84,11 @@ export function WeeklyReportsView({
 
   // Active preview tab: 'equipo' | 'profesor' | 'general'
   const [reportTab, setReportTab] = useState<'equipo' | 'profesor' | 'general'>('equipo');
+
+  // Pre-calculate which weeks have recorded student attendance
+  const recordedDatesSet = useMemo(() => {
+    return new Set(studentAttendanceRecords.map((r) => r.classDate));
+  }, [studentAttendanceRecords]);
 
   // Filters
   const [teacherFilter, setTeacherFilter] = useState<string>(activeTeacher ? activeTeacher.id : 'all');
@@ -239,11 +287,15 @@ export function WeeklyReportsView({
                 onChange={(e) => setSelectedWeekLabel(e.target.value)}
                 className="flex-1 sm:w-64 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs sm:text-sm rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
               >
-                {availableWeeks.map((w) => (
-                  <option key={w.label} value={w.label}>
-                    {w.label} {w.label === currentWeek.label ? '⭐ (Actual)' : ''}
-                  </option>
-                ))}
+                {availableWeeks.map((w) => {
+                  const hasData = w.weekDays.some((d) => recordedDatesSet.has(d.dateStr));
+                  const isCurrent = w.label === currentWeek.label;
+                  return (
+                    <option key={w.label} value={w.label}>
+                      {w.label} {isCurrent ? '⭐ (Actual)' : ''} {hasData ? '📝 (Con datos)' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 

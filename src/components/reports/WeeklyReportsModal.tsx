@@ -9,6 +9,7 @@ interface WeeklyReportsModalProps {
   students: Student[];
   studentAttendanceRecords: StudentAttendanceRecord[];
   activeTeacher?: TeacherWithBlocks;
+  selectedDate?: Date;
 }
 
 export function WeeklyReportsModal({
@@ -18,6 +19,7 @@ export function WeeklyReportsModal({
   students,
   studentAttendanceRecords,
   activeTeacher,
+  selectedDate,
 }: WeeklyReportsModalProps) {
   // Close on Escape key
   useEffect(() => {
@@ -87,6 +89,7 @@ export function WeeklyReportsModal({
             students={students}
             studentAttendanceRecords={studentAttendanceRecords}
             activeTeacher={activeTeacher}
+            selectedDate={selectedDate}
           />
         </div>
 
