@@ -477,8 +477,38 @@ export const supabaseService = {
   },
 
   /**
-   * Sincronizar profesores locales a Supabase (si no existen o para inicializar)
+   * Actualizar horario y bloques de un profesor
    */
+  async updateTeacherSchedule(teacher: TeacherWithBlocks): Promise<boolean> {
+    // 1. LocalStorage
+    const local = getLocal<TeacherWithBlocks[]>(STORAGE_KEYS.TEACHERS, localTeachers);
+    const updated = local.map((t) => (t.id === teacher.id ? teacher : t));
+    setLocal(STORAGE_KEYS.TEACHERS, updated);
+
+    // 2. Supabase
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('teachers')
+          .update({
+            schedule_days: teacher.scheduleDays,
+            block_type: teacher.blockType,
+            blocks: teacher.blocks,
+          })
+          .eq('id', teacher.id);
+
+        if (error) {
+          console.warn('[supabaseService] Error updating teacher schedule in Supabase:', error);
+          return false;
+        }
+        return true;
+      } catch (err) {
+        console.warn('[supabaseService] Supabase updateTeacherSchedule failed:', err);
+        return false;
+      }
+    }
+    return true;
+  },
   async syncTeachers(teachersList: TeacherWithBlocks[] = localTeachers): Promise<boolean> {
     if (!isSupabaseConfigured) return false;
 
@@ -534,4 +564,6 @@ export const deleteStudentAttendance = supabaseService.deleteStudentAttendance.b
 export const deleteStudentAttendanceByTeacherAndDate = supabaseService.deleteStudentAttendanceByTeacherAndDate.bind(supabaseService);
 export const getTeachers = supabaseService.getTeachers.bind(supabaseService);
 export const syncTeachers = supabaseService.syncTeachers.bind(supabaseService);
+export const updateTeacherSchedule = supabaseService.updateTeacherSchedule.bind(supabaseService);
+
 

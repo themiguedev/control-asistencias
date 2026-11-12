@@ -19,7 +19,10 @@ import {
   getStudentAttendances,
   recordBulkStudentAttendance,
   deleteStudentAttendanceByTeacherAndDate,
+  getTeachers,
+  updateTeacherSchedule as dbUpdateTeacherSchedule,
 } from './services/supabaseService';
+import { EditScheduleModal } from './components/attendance/EditScheduleModal';
 import { isSupabaseConfigured } from './lib/supabase';
 
 // Sample initial records for demo/testing
@@ -436,8 +439,19 @@ const INITIAL_STUDENT_ATTENDANCE: StudentAttendanceRecord[] = [
 ];
 
 export function App() {
-  const [teacherList] = useState<TeacherWithBlocks[]>(teachers);
+  const [teacherList, setTeacherList] = useState<TeacherWithBlocks[]>(() => {
+    const saved = localStorage.getItem('cba-teachers');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return teachers;
+      }
+    }
+    return teachers;
+  });
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>(teachers[0].id);
+  const [isEditScheduleModalOpen, setIsEditScheduleModalOpen] = useState<boolean>(false);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => {
     const saved = localStorage.getItem('cba-attendance-records');
     if (saved) {
@@ -494,6 +508,10 @@ export function App() {
     let isMounted = true;
     async function loadCloudData() {
       try {
+        const cloudTeachers = await getTeachers();
+        if (isMounted && cloudTeachers && cloudTeachers.length > 0) {
+          setTeacherList(cloudTeachers);
+        }
         const cloudStudents = await getStudents();
         if (isMounted && cloudStudents && cloudStudents.length > 0) {
           setStudents(cloudStudents);
@@ -661,6 +679,20 @@ export function App() {
     }
   };
 
+  const handleUpdateTeacherSchedule = (updatedTeacher: TeacherWithBlocks) => {
+    setTeacherList((prev) => {
+      const updated = prev.map((t) => (t.id === updatedTeacher.id ? updatedTeacher : t));
+      localStorage.setItem('cba-teachers', JSON.stringify(updated));
+      return updated;
+    });
+
+    if (isSupabaseConfigured) {
+      dbUpdateTeacherSchedule(updatedTeacher).catch((err: unknown) =>
+        console.warn('[App] Error guardando horario de profesor en Supabase:', err)
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 overflow-x-hidden">
       {/* 1. Header with Dark Mode Toggle */}
@@ -822,6 +854,7 @@ export function App() {
                       onSubmit={handleAddAttendance}
                       onSubmitStudentAttendance={handleSaveStudentAttendance}
                       onDeleteAttendance={handleDeleteAttendance}
+                      onOpenEditSchedule={() => setIsEditScheduleModalOpen(true)}
                     />
                   </div>
                 </div>
@@ -839,6 +872,14 @@ export function App() {
         students={students}
         studentAttendanceRecords={studentAttendanceRecords}
         activeTeacher={activeTeacher}
+      />
+
+      {/* Modal para Editar Horario y Bloques del Profesor */}
+      <EditScheduleModal
+        isOpen={isEditScheduleModalOpen}
+        onClose={() => setIsEditScheduleModalOpen(false)}
+        teacher={activeTeacher}
+        onSave={handleUpdateTeacherSchedule}
       />
 
       {/* Footer */}

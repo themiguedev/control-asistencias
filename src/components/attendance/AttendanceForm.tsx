@@ -29,6 +29,7 @@ interface AttendanceFormProps {
   onSubmit: (records: NewAttendanceRecordData[]) => void;
   onSubmitStudentAttendance?: (records: StudentAttendanceRecord[]) => void;
   onDeleteAttendance?: (teacherId: string, classDate: string) => void;
+  onOpenEditSchedule?: () => void;
 }
 
 interface BlockState {
@@ -50,6 +51,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   onSubmit,
   onSubmitStudentAttendance,
   onDeleteAttendance,
+  onOpenEditSchedule,
 }) => {
   const dateStr = formatDate(date);
   const isValidClassDay = isTeachingDay(teacher, date);
@@ -404,12 +406,28 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           <h3 className="text-base sm:text-xl font-bold text-slate-800 dark:text-white">
             {capitalizedDateTitle}
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Prof. {teacher.name} — Modalidad:{' '}
-            <span className="font-medium text-slate-700 dark:text-slate-300">
-              {isSplit ? 'Dos bloques divididos (1h c/u)' : 'Bloque continuo (2h)'}
-            </span>
-          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Prof. {teacher.name} — Modalidad:{' '}
+              <span className="font-medium text-slate-700 dark:text-slate-300">
+                {isSplit
+                  ? `Por Bloques (${teacher.blocks.length} turnos)`
+                  : 'Horario Continuo'}
+              </span>{' '}
+              ({teacher.blocks.map((b) => formatTimeRange12h(b.startTime, b.endTime)).join(' | ')})
+            </p>
+            {onOpenEditSchedule && (
+              <button
+                type="button"
+                onClick={onOpenEditSchedule}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 border border-blue-200 dark:border-blue-900/50 transition cursor-pointer"
+                title="Editar horario y bloques de este profesor"
+              >
+                <span>⏰</span>
+                <span>Editar Horario</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {isAlreadyRegistered && (
