@@ -81,3 +81,16 @@ export function getMonthDays(year: number, month: number): Date[] {
   }
   return days;
 }
+
+
+// Re-export weekly report & reconciliation utilities
+export {
+  getMondayOfWeek,
+  getISOWeekNumber,
+  getWeekRange,
+  getAvailableWeeks,
+  getTeachingDatesForTeacherInWeek,
+  reconcileStudentAttendance,
+  reconcileAllTeachersStudentAttendance,
+  calculateStudentWeeklySummaries,
+} from './weeklyReports';

@@ -3,6 +3,8 @@ import type {
   TeacherWithBlocks,
   AttendanceStatus,
   AttendanceRecord,
+  StudentAttendanceRecord,
+  Student,
   DayOfWeek,
   Block,
 } from '../../types';
@@ -21,8 +23,11 @@ export interface NewAttendanceRecordData {
 interface AttendanceFormProps {
   teacher: TeacherWithBlocks;
   date: Date;
+  students?: Student[];
   existingRecords?: AttendanceRecord[];
+  existingStudentRecords?: StudentAttendanceRecord[];
   onSubmit: (records: NewAttendanceRecordData[]) => void;
+  onSubmitStudentAttendance?: (records: StudentAttendanceRecord[]) => void;
   onDeleteAttendance?: (teacherId: string, classDate: string) => void;
 }
 
@@ -31,11 +36,19 @@ interface BlockState {
   notes: string;
 }
 
+interface StudentState {
+  status: AttendanceStatus;
+  notes?: string;
+}
+
 export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   teacher,
   date,
+  students = [],
   existingRecords = [],
+  existingStudentRecords = [],
   onSubmit,
+  onSubmitStudentAttendance,
   onDeleteAttendance,
 }) => {
   const dateStr = formatDate(date);
@@ -51,7 +64,10 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const capitalizedDateTitle =
     formattedDateTitle.charAt(0).toUpperCase() + formattedDateTitle.slice(1);
 
-  // Map each block of the teacher to local state or existing record
+  // Filter students belonging to this teacher
+  const teacherStudents = students.filter((s) => s.teacherId === teacher.id);
+
+  // Teacher blocks state
   const [blockStates, setBlockStates] = useState<Record<string, BlockState>>(() => {
     const initialStates: Record<string, BlockState> = {};
     teacher.blocks.forEach((block) => {
@@ -70,7 +86,27 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     return initialStates;
   });
 
+  // Students attendance state
+  const [studentStates, setStudentStates] = useState<Record<string, StudentState>>(() => {
+    const initial: Record<string, StudentState> = {};
+    teacherStudents.forEach((student) => {
+      const found = existingStudentRecords.find(
+        (r) =>
+          r.studentId === student.id &&
+          r.teacherId === teacher.id &&
+          r.classDate === dateStr &&
+          (r.blockId === student.blockId || (!r.blockId && !student.blockId))
+      );
+      initial[student.id] = {
+        status: found ? found.status : 'presente',
+        notes: found?.notes || '',
+      };
+    });
+    return initial;
+  });
+
   const [isSubmittedSuccess, setIsSubmittedSuccess] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   if (!isValidClassDay) {
     return (
@@ -96,7 +132,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     );
   }
 
-  // Check if all blocks already have a saved record
+  // Check if teacher attendance is already recorded for this day
   const existingRecordsForDay = existingRecords.filter(
     (r) => r.teacherId === teacher.id && r.classDate === dateStr,
   );
@@ -108,7 +144,9 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
       ),
     );
 
-  const handleStatusChange = (blockId: string, status: AttendanceStatus) => {
+  const canEdit = !isAlreadyRegistered || isEditMode;
+
+  const handleTeacherStatusChange = (blockId: string, status: AttendanceStatus) => {
     setBlockStates((prev) => ({
       ...prev,
       [blockId]: {
@@ -118,11 +156,38 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     }));
   };
 
+  const handleStudentStatusChange = (studentId: string, status: AttendanceStatus) => {
+    setStudentStates((prev) => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        status,
+      },
+    }));
+  };
+
+  const handleMarkAllStudents = (status: AttendanceStatus, targetBlockId?: string) => {
+    setStudentStates((prev) => {
+      const next = { ...prev };
+      teacherStudents.forEach((st) => {
+        if (!targetBlockId || st.blockId === targetBlockId) {
+          next[st.id] = {
+            ...next[st.id],
+            status,
+          };
+        }
+      });
+      return next;
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isAlreadyRegistered) return;
+    if (isAlreadyRegistered && !isEditMode) return;
 
     const dayName = getDayName(date);
+
+    // 1. Save Teacher Attendance
     const recordsToSave: NewAttendanceRecordData[] = teacher.blocks.map((block) => {
       const state = blockStates[block.id] || { status: 'presente', notes: '' };
       return {
@@ -131,15 +196,63 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         classDate: dateStr,
         dayName,
         status: state.status,
-        notes: '',
+        notes: state.notes || '',
       };
     });
-
     onSubmit(recordsToSave);
+
+    // 2. Save Student Attendance
+    if (onSubmitStudentAttendance && teacherStudents.length > 0) {
+      const studentRecordsToSave: StudentAttendanceRecord[] = teacherStudents.map(
+        (student) => {
+          const state = studentStates[student.id] || { status: 'presente' };
+          const existing = existingStudentRecords.find(
+            (r) =>
+              r.studentId === student.id &&
+              r.teacherId === teacher.id &&
+              r.classDate === dateStr &&
+              (r.blockId === student.blockId || (!r.blockId && !student.blockId))
+          );
+
+          const resolvedBlockId =
+            teacher.blockType === 'split'
+              ? student.blockId || teacher.blocks[0]?.id || null
+              : teacher.blocks[0]?.id || null;
+
+          return {
+            id: existing ? existing.id : `sturec-${Date.now()}-${student.id}`,
+            studentId: student.id,
+            teacherId: teacher.id,
+            blockId: resolvedBlockId,
+            classDate: dateStr,
+            status: state.status,
+            notes: state.notes,
+            isAutomatic: false,
+            createdAt: existing ? existing.createdAt : new Date().toISOString(),
+          };
+        }
+      );
+
+      onSubmitStudentAttendance(studentRecordsToSave);
+    }
+
     setIsSubmittedSuccess(true);
+    setIsEditMode(false);
   };
 
   const isSplit = teacher.blockType === 'split';
+
+  // Stats calculation for enrolled students for this day
+  const studentStats = teacherStudents.reduce(
+    (acc, s) => {
+      const status = studentStates[s.id]?.status || 'presente';
+      if (status === 'presente') acc.presentes++;
+      else if (status === 'ausente') acc.ausentes++;
+      else if (status === 'justificado') acc.justificados++;
+      return acc;
+    },
+    { presentes: 0, ausentes: 0, justificados: 0 }
+  );
 
   const renderStatusRadioOptions = (block: Block, currentStatus: AttendanceStatus) => {
     const options: {
@@ -152,21 +265,21 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         status: 'presente',
         label: 'Presente',
         activeClass:
-          'bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-200',
+          'bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-200 dark:shadow-none',
         icon: '✓',
       },
       {
         status: 'ausente',
         label: 'Ausente',
         activeClass:
-          'bg-rose-500 text-white border-rose-500 shadow-sm shadow-rose-200',
+          'bg-rose-500 text-white border-rose-500 shadow-sm shadow-rose-200 dark:shadow-none',
         icon: '✗',
       },
       {
         status: 'justificado',
         label: 'Justificado',
         activeClass:
-          'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-200',
+          'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-200 dark:shadow-none',
         icon: '!',
       },
     ];
@@ -182,15 +295,15 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 isChecked
                   ? opt.activeClass
                   : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600'
-              } ${isAlreadyRegistered ? 'opacity-80 cursor-not-allowed' : ''}`}
+              } ${!canEdit ? 'opacity-80 cursor-not-allowed' : ''}`}
             >
               <input
                 type="radio"
                 name={`status-${block.id}`}
                 value={opt.status}
                 checked={isChecked}
-                disabled={isAlreadyRegistered}
-                onChange={() => handleStatusChange(block.id, opt.status)}
+                disabled={!canEdit}
+                onChange={() => handleTeacherStatusChange(block.id, opt.status)}
                 className="sr-only"
               />
               <span className="font-bold text-sm shrink-0">{opt.icon}</span>
@@ -198,6 +311,84 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             </label>
           );
         })}
+      </div>
+    );
+  };
+
+  const renderStudentRow = (student: Student) => {
+    const currentStatus = studentStates[student.id]?.status || 'presente';
+
+    return (
+      <div
+        key={student.id}
+        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 gap-2.5 transition hover:border-slate-300 dark:hover:border-slate-600"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm truncate">
+              {student.fullName}
+            </span>
+            {student.teamName && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                <span>🤖</span>
+                <span>{student.teamName}</span>
+              </span>
+            )}
+          </div>
+          {student.identifier && (
+            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono block mt-0.5">
+              {student.identifier}
+            </span>
+          )}
+        </div>
+
+        {/* 3 Status Toggle Buttons */}
+        <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+          <button
+            type="button"
+            disabled={!canEdit}
+            onClick={() => handleStudentStatusChange(student.id, 'presente')}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 touch-manipulation min-h-[36px] ${
+              currentStatus === 'presente'
+                ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/20'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+            } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
+            title="Presente"
+          >
+            <span>✓</span>
+            <span className="hidden sm:inline">Presente</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={!canEdit}
+            onClick={() => handleStudentStatusChange(student.id, 'ausente')}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 touch-manipulation min-h-[36px] ${
+              currentStatus === 'ausente'
+                ? 'bg-rose-600 text-white shadow-sm shadow-rose-500/20'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+            } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
+            title="Ausente"
+          >
+            <span>✗</span>
+            <span className="hidden sm:inline">Ausente</span>
+          </button>
+
+          <button
+            type="button"
+            disabled={!canEdit}
+            onClick={() => handleStudentStatusChange(student.id, 'justificado')}
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 touch-manipulation min-h-[36px] ${
+              currentStatus === 'justificado'
+                ? 'bg-amber-600 text-white shadow-sm shadow-amber-500/20'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+            } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
+            title="Justificado"
+          >
+            <span>!</span>
+            <span className="hidden sm:inline">Justif.</span>
+          </button>
+        </div>
       </div>
     );
   };
@@ -222,16 +413,31 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         </div>
 
         {isAlreadyRegistered && (
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs font-bold">
               <span>✓</span>
               <span>Registrado</span>
             </span>
+
+            <button
+              type="button"
+              onClick={() => setIsEditMode((prev) => !prev)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 min-h-[32px] rounded-lg text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition cursor-pointer touch-manipulation"
+              title="Modificar asistencias de esta fecha"
+            >
+              <span>✏️</span>
+              <span>{isEditMode ? 'Cancelar' : 'Modificar'}</span>
+            </button>
+
             {onDeleteAttendance && (
               <button
                 type="button"
                 onClick={() => {
-                  if (window.confirm(`¿Estás seguro de eliminar el registro de asistencia del ${capitalizedDateTitle}?`)) {
+                  if (
+                    window.confirm(
+                      `¿Estás seguro de eliminar el registro de asistencia del ${capitalizedDateTitle}?`
+                    )
+                  ) {
                     onDeleteAttendance(teacher.id, dateStr);
                   }
                 }}
@@ -249,90 +455,218 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
       {isSubmittedSuccess && (
         <div className="mb-4 sm:mb-5 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-medium flex items-center gap-2">
           <span>✓</span>
-          <span>¡Asistencia guardada correctamente para esta fecha!</span>
+          <span>¡Asistencia de profesor y alumnos guardada correctamente!</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-        {teacher.blocks.map((block, idx) => {
-          const blockState = blockStates[block.id] || {
-            status: 'presente',
-            notes: '',
-          };
-
-          return (
-            <div
-              key={block.id}
-              className={`rounded-xl p-3.5 sm:p-5 border transition ${
-                isSplit
-                  ? 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/60 hover:border-blue-200 dark:hover:border-blue-500/30'
-                  : 'bg-white dark:bg-slate-900 border-transparent p-0 sm:p-0'
-              }`}
-            >
-              {isSplit && (
-                <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-700/80 gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center shrink-0">
-                      {idx + 1}
-                    </span>
-                    <h4 className="font-bold text-slate-800 dark:text-white text-sm sm:text-base">
-                      {block.label}
-                    </h4>
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {isAlreadyRegistered && (
-                      <StatusBadge status={blockState.status} size="sm" />
-                    )}
-                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                      🕒 {formatTimeRange12h(block.startTime, block.endTime)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {!isSplit && (
-                <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between mb-3 gap-1.5">
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Estado de asistencia:
-                  </span>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {isAlreadyRegistered && (
-                      <StatusBadge status={blockState.status} size="sm" />
-                    )}
-                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
-                      🕒 {formatTimeRange12h(block.startTime, block.endTime)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Radio Group */}
-              <div>
-                {renderStatusRadioOptions(block, blockState.status)}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Action Button */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs text-slate-400 dark:text-slate-500 text-center sm:text-left">
-            {isAlreadyRegistered
-              ? 'Puedes eliminar el registro arriba si necesitas volver a registrar.'
-              : 'Verifique los datos antes de registrar.'}
+      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+        {/* 1. SECCIÓN: ASISTENCIA DEL PROFESOR */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between pb-1 border-b border-slate-100 dark:border-slate-800">
+            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <span>👨‍🏫</span>
+              <span>Asistencia del Profesor</span>
+            </h4>
           </div>
 
-          <button
-            type="submit"
-            disabled={isAlreadyRegistered}
-            className={`w-full sm:w-auto px-6 py-3 sm:py-2.5 min-h-[44px] rounded-xl text-sm font-semibold transition cursor-pointer shadow-sm touch-manipulation flex items-center justify-center ${
-              isAlreadyRegistered
-                ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed shadow-none'
-                : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-500/20'
-            }`}
-          >
-            {isAlreadyRegistered ? 'Asistencia registrada' : 'Guardar Asistencia'}
-          </button>
+          {teacher.blocks.map((block, idx) => {
+            const blockState = blockStates[block.id] || {
+              status: 'presente',
+              notes: '',
+            };
+
+            return (
+              <div
+                key={block.id}
+                className={`rounded-xl p-3.5 sm:p-5 border transition ${
+                  isSplit
+                    ? 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/60 hover:border-blue-200 dark:hover:border-blue-500/30'
+                    : 'bg-white dark:bg-slate-900 border-transparent p-0 sm:p-0'
+                }`}
+              >
+                {isSplit && (
+                  <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-700/80 gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </span>
+                      <h4 className="font-bold text-slate-800 dark:text-white text-sm sm:text-base">
+                        {block.label}
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {isAlreadyRegistered && !isEditMode && (
+                        <StatusBadge status={blockState.status} size="sm" />
+                      )}
+                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                        🕒 {formatTimeRange12h(block.startTime, block.endTime)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {!isSplit && (
+                  <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between mb-3 gap-1.5">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Estado del profesor:
+                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {isAlreadyRegistered && !isEditMode && (
+                        <StatusBadge status={blockState.status} size="sm" />
+                      )}
+                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                        🕒 {formatTimeRange12h(block.startTime, block.endTime)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Radio Group */}
+                <div>{renderStatusRadioOptions(block, blockState.status)}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 2. SECCIÓN: ASISTENCIA DE ALUMNOS */}
+        <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <span>👥</span>
+                <span>Asistencia de Alumnos</span>
+              </h4>
+              <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                {teacherStudents.length}
+              </span>
+            </div>
+
+            {/* Quick Summary Badges */}
+            {teacherStudents.length > 0 && (
+              <div className="flex items-center gap-2 text-[11px] font-semibold flex-wrap">
+                <span className="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                  {studentStats.presentes} Pres.
+                </span>
+                <span className="text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800">
+                  {studentStats.ausentes} Aus.
+                </span>
+                <span className="text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                  {studentStats.justificados} Just.
+                </span>
+              </div>
+            )}
+          </div>
+
+          {teacherStudents.length === 0 ? (
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 text-center">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                No hay alumnos registrados para este profesor aún.
+              </p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                Puedes inscribir alumnos en la pestaña <strong>Alumnos</strong> en la parte superior.
+              </p>
+            </div>
+          ) : isSplit ? (
+            /* Split Blocks Display (like Mayuli) */
+            <div className="space-y-4">
+              {teacher.blocks.map((block) => {
+                const blockStudents = teacherStudents.filter(
+                  (s) => s.blockId === block.id || !s.blockId
+                );
+
+                return (
+                  <div
+                    key={block.id}
+                    className="p-3.5 rounded-xl bg-slate-50/60 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/60 space-y-2.5"
+                  >
+                    <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between gap-1.5 pb-2 border-b border-slate-200 dark:border-slate-700/60">
+                      <div>
+                        <h5 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200">
+                          {block.label}{' '}
+                          <span className="text-slate-400 font-normal">
+                            ({formatTimeRange12h(block.startTime, block.endTime)})
+                          </span>
+                        </h5>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {blockStudents.length} alumno(s) inscritos
+                        </span>
+                      </div>
+
+                      {canEdit && blockStudents.length > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleMarkAllStudents('presente', block.id)}
+                            className="px-2 py-1 rounded text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 transition cursor-pointer"
+                          >
+                            ✓ Todos P
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMarkAllStudents('ausente', block.id)}
+                            className="px-2 py-1 rounded text-[11px] font-semibold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 transition cursor-pointer"
+                          >
+                            ✗ Todos A
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      {blockStudents.map(renderStudentRow)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Continuous Block Display (Miguelangel, Luis) */
+            <div className="space-y-2.5">
+              {canEdit && teacherStudents.length > 0 && (
+                <div className="flex items-center justify-end gap-2 pb-1">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    Acción rápida:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleMarkAllStudents('presente')}
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition cursor-pointer active:scale-95 touch-manipulation"
+                  >
+                    ✓ Todos Presentes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleMarkAllStudents('ausente')}
+                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition cursor-pointer active:scale-95 touch-manipulation"
+                  >
+                    ✗ Todos Ausentes
+                  </button>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                {teacherStudents.map(renderStudentRow)}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Action Button */}
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="text-xs text-slate-400 dark:text-slate-500 text-center sm:text-left">
+            {isAlreadyRegistered && !isEditMode
+              ? 'Asistencia guardada. Haz clic en "Modificar" arriba para cambiar notas.'
+              : 'Se registrará la asistencia del docente y de los alumnos para esta fecha.'}
+          </div>
+
+          {canEdit && (
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-6 py-3 sm:py-2.5 min-h-[44px] rounded-xl text-sm font-semibold transition cursor-pointer shadow-sm touch-manipulation flex items-center justify-center bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-blue-500/20 active:scale-[0.98]"
+            >
+              {isEditMode ? 'Actualizar Asistencias' : 'Guardar Asistencia'}
+            </button>
+          )}
         </div>
       </form>
     </div>
