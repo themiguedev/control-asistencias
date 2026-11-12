@@ -85,6 +85,17 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
     setEditTeamValue('');
   };
 
+  const handleRemoveFromTeam = (student: Student) => {
+    if (onUpdateStudent) {
+      onUpdateStudent({
+        ...student,
+        teamName: null,
+      });
+    }
+    setEditingStudentId(null);
+    setEditTeamValue('');
+  };
+
   const handleCancelEditTeam = () => {
     setEditingStudentId(null);
     setEditTeamValue('');
@@ -244,15 +255,25 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
 
                           {supportsTeams && !isEditingThisStudent && (
                             student.teamName ? (
-                              <button
-                                type="button"
-                                onClick={() => handleStartEditTeam(student)}
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-200 dark:hover:bg-blue-800/60 transition cursor-pointer"
-                                title="Clic para cambiar equipo"
-                              >
-                                <span>🤖 {student.teamName}</span>
-                                <span className="text-[10px] opacity-70">✎</span>
-                              </button>
+                              <div className="inline-flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartEditTeam(student)}
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-200 dark:hover:bg-blue-800/60 transition cursor-pointer"
+                                  title="Clic para cambiar de equipo"
+                                >
+                                  <span>🤖 {student.teamName}</span>
+                                  <span className="text-[10px] opacity-70">✎</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveFromTeam(student)}
+                                  className="p-1 rounded-full text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition cursor-pointer text-xs"
+                                  title="Sacar al alumno de este equipo"
+                                >
+                                  ✕
+                                </button>
+                              </div>
                             ) : (
                               <button
                                 type="button"
@@ -297,6 +318,16 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                             >
                               Guardar
                             </button>
+                            {student.teamName && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFromTeam(student)}
+                                className="px-2 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-300 text-[11px] font-semibold cursor-pointer transition border border-rose-200 dark:border-rose-900/40"
+                                title="Quitar equipo y dejar sin equipo"
+                              >
+                                Quitar equipo
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={handleCancelEditTeam}
