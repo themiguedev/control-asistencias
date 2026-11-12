@@ -36,7 +36,7 @@ interface BlockState {
 }
 
 interface StudentState {
-  status: AttendanceStatus;
+  status?: AttendanceStatus;
   notes?: string;
 }
 
@@ -86,9 +86,9 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     return initialStates;
   });
 
-  // Students attendance state
+  // Students attendance state: default is undefined/unmarked for new days
   const [studentStates, setStudentStates] = useState<Record<string, StudentState>>(() => {
-    const initial: Record<string, StudentState> = {};
+    const initial: Record<string, { status?: AttendanceStatus; notes?: string }> = {};
     teacherStudents.forEach((student) => {
       const found = existingStudentRecords.find(
         (r) =>
@@ -97,10 +97,12 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           r.classDate === dateStr &&
           (r.blockId === student.blockId || (!r.blockId && !student.blockId))
       );
-      initial[student.id] = {
-        status: found ? found.status : 'presente',
-        notes: found?.notes || '',
-      };
+      if (found) {
+        initial[student.id] = {
+          status: found.status,
+          notes: found.notes || '',
+        };
+      }
     });
     return initial;
   });
@@ -214,7 +216,11 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     if (onSubmitStudentAttendance && teacherStudents.length > 0) {
       const studentRecordsToSave: StudentAttendanceRecord[] = teacherStudents.map(
         (student) => {
-          const state = studentStates[student.id] || { status: 'presente' };
+          const state = studentStates[student.id];
+          const isExplicitlyMarked = markedStudentIds.has(student.id);
+          const finalStatus: AttendanceStatus = isExplicitlyMarked && state?.status ? state.status : 'ausente';
+          const isAutoAbsence = !isExplicitlyMarked || !state?.status;
+
           const existing = existingStudentRecords.find(
             (r) =>
               r.studentId === student.id &&
@@ -234,9 +240,9 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             teacherId: teacher.id,
             blockId: resolvedBlockId,
             classDate: dateStr,
-            status: state.status,
-            notes: state.notes,
-            isAutomatic: false,
+            status: finalStatus,
+            notes: state?.notes || (isAutoAbsence ? 'Ausente (No registrado)' : undefined),
+            isAutomatic: isAutoAbsence,
             createdAt: existing ? existing.createdAt : new Date().toISOString(),
           };
         }
@@ -254,7 +260,9 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   // Stats calculation for enrolled students for this day
   const studentStats = teacherStudents.reduce(
     (acc, s) => {
-      const status = studentStates[s.id]?.status || 'presente';
+      const isMarked = markedStudentIds.has(s.id);
+      if (!isMarked) return acc;
+      const status = studentStates[s.id]?.status;
       if (status === 'presente') acc.presentes++;
       else if (status === 'ausente') acc.ausentes++;
       else if (status === 'justificado') acc.justificados++;
@@ -264,8 +272,8 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   );
 
   const renderStudentRow = (student: Student) => {
-    const currentStatus = studentStates[student.id]?.status || 'presente';
     const isMarked = markedStudentIds.has(student.id);
+    const currentStatus = studentStates[student.id]?.status;
 
     return (
       <div
@@ -290,12 +298,12 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                   : 'bg-amber-500 text-white shadow-sm shadow-amber-500/30'
               }`}
               title={
-                !isMarked
+                !isMarked || !currentStatus
                   ? 'Pendiente de registrar'
                   : `Marcado como: ${currentStatus.toUpperCase()}`
               }
             >
-              {!isMarked ? '—' : currentStatus === 'presente' ? '✓' : currentStatus === 'ausente' ? '✗' : '!'}
+              {!isMarked || !currentStatus ? '—' : currentStatus === 'presente' ? '✓' : currentStatus === 'ausente' ? '✗' : '!'}
             </span>
 
             <span className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm truncate">
