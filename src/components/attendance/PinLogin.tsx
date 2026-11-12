@@ -87,8 +87,15 @@ export const PinLogin: React.FC<PinLoginProps> = ({
         onClick={() => hiddenInputRef.current?.focus()}
         className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 text-center transition-all"
       >
-        <div className="w-16 h-16 bg-blue-600/10 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-sm">
-          🔒
+        <div className="relative w-20 h-20 mx-auto mb-4">
+          <img
+            src="/logo-team-bellas-artes.jpg"
+            alt="Logo Team Bellas Artes"
+            className="w-20 h-20 rounded-full object-cover border-2 border-blue-500/30 shadow-md mx-auto"
+          />
+          <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm">
+            🔒
+          </span>
         </div>
 
         <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
