@@ -202,27 +202,29 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                 return (
                   <div
                     key={student.id}
-                    className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-850 hover:border-blue-200 dark:hover:border-blue-900/40 transition shadow-2xs"
+                    className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-blue-200 dark:hover:border-blue-900/60 transition shadow-2xs"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-200 dark:border-blue-800">
+                      <span className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-200 dark:border-blue-800">
                         {idx + 1}
                       </span>
                       <div>
-                        <h5 className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                        <h5 className="text-sm font-bold text-slate-800 dark:text-white">
                           {student.fullName}
                         </h5>
-                        <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-slate-400 dark:text-slate-500">
+                        <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                           {student.identifier && (
-                            <span className="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px] text-slate-600 dark:text-slate-300">
+                            <span className="bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded text-[11px] font-medium text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
                               ID: {student.identifier}
                             </span>
                           )}
                           {student.contactPhone && (
-                            <span>📞 {student.contactPhone}</span>
+                            <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                              <span className="text-rose-500">📞</span> {student.contactPhone}
+                            </span>
                           )}
                           {assignedBlock && (
-                            <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5 rounded text-[11px] font-medium border border-indigo-200 dark:border-indigo-800/40">
+                            <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[11px] font-medium border border-blue-200 dark:border-blue-800/60">
                               🕒 {assignedBlock.label} ({assignedBlock.startTime} - {assignedBlock.endTime})
                             </span>
                           )}
@@ -233,7 +235,7 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                     <button
                       type="button"
                       onClick={() => onDeleteStudent(student.id)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
                       title="Eliminar alumno"
                     >
                       🗑️
