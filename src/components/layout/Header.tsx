@@ -41,9 +41,6 @@ export const Header: React.FC<HeaderProps> = ({
                   Docentes
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-400">
-                Centro Bolivariano Americano — Registro Oficial
-              </p>
             </div>
           </div>
 

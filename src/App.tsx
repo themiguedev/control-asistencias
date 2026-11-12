@@ -246,7 +246,7 @@ export function App() {
 
       {/* Footer */}
       <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-4 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
-        <p>Centro Bolivariano Americano (CBA) — Sistema de Control de Asistencias Docente</p>
+        <p>Sistema de Control de Asistencias Docente — CBA</p>
       </footer>
     </div>
   );
