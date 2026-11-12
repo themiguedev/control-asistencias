@@ -34,6 +34,7 @@ export interface Student {
   id: string;
   teacherId: string;
   blockId?: string | null; // For teachers with split blocks (like Mayuli)
+  teamName?: string | null; // Optional robotics team name (for Miguelangel and Luis)
   fullName: string;
   identifier?: string; // DNI / Cédula / Código de estudiante
   contactPhone?: string;

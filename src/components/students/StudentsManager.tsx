@@ -17,19 +17,38 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
   onDeleteStudent,
 }) => {
   const [fullName, setFullName] = useState('');
+  const [teamName, setTeamName] = useState('');
   const [selectedBlockId, setSelectedBlockId] = useState<string>(
     teacher.blocks[0]?.id || ''
   );
   const [filterBlockId, setFilterBlockId] = useState<string>('all');
+  const [filterTeam, setFilterTeam] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Support teams for Miguelangel and Luis
+  const supportsTeams =
+    teacher.id === 'teacher-miguelangel' || teacher.id === 'teacher-luis';
   const isSplit = teacher.blockType === 'split';
   const teacherStudents = students.filter((s) => s.teacherId === teacher.id);
 
+  // Available unique teams for this teacher
+  const existingTeams = Array.from(
+    new Set(
+      teacherStudents
+        .map((s) => s.teamName?.trim())
+        .filter((t): t is string => Boolean(t))
+    )
+  );
+
   const filteredStudents = teacherStudents.filter((s) => {
-    const matchesSearch = s.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (s.teamName && s.teamName.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesBlock = filterBlockId === 'all' || s.blockId === filterBlockId;
-    return matchesSearch && matchesBlock;
+    const matchesTeam =
+      filterTeam === 'all' ||
+      (filterTeam === 'sin-equipo' ? !s.teamName : s.teamName === filterTeam);
+    return matchesSearch && matchesBlock && matchesTeam;
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -40,9 +59,11 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
       teacherId: teacher.id,
       fullName: fullName.trim(),
       blockId: isSplit ? selectedBlockId : null,
+      teamName: supportsTeams && teamName.trim() ? teamName.trim() : null,
     });
 
     setFullName('');
+    setTeamName('');
   };
 
   return (
@@ -89,6 +110,46 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
               />
             </div>
 
+            {supportsTeams && (
+              <div>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  Equipo / Robot asignado <span className="text-slate-400 dark:text-slate-500 font-normal">(opcional)</span>:
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    placeholder="Ej. Equipo Alfa, Bot 1, WRO Team..."
+                    list="existing-teams-list"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  />
+                  {existingTeams.length > 0 && (
+                    <datalist id="existing-teams-list">
+                      {existingTeams.map((team) => (
+                        <option key={team} value={team} />
+                      ))}
+                    </datalist>
+                  )}
+                </div>
+                {existingTeams.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    <span className="text-[10px] text-slate-400">Existentes:</span>
+                    {existingTeams.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setTeamName(t)}
+                        className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 transition cursor-pointer"
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {isSplit && (
               <div>
                 <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
@@ -126,10 +187,26 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar alumno por nombre..."
+                placeholder={supportsTeams ? "Buscar por alumno o equipo..." : "Buscar alumno por nombre..."}
                 className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
+
+            {supportsTeams && existingTeams.length > 0 && (
+              <select
+                value={filterTeam}
+                onChange={(e) => setFilterTeam(e.target.value)}
+                className="w-full sm:w-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              >
+                <option value="all">Todos los equipos</option>
+                <option value="sin-equipo">Sin equipo asignado</option>
+                {existingTeams.map((team) => (
+                  <option key={team} value={team}>
+                    🤖 {team}
+                  </option>
+                ))}
+              </select>
+            )}
 
             {isSplit && (
               <select
@@ -174,9 +251,16 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                         {idx + 1}
                       </span>
                       <div>
-                        <h5 className="text-sm font-bold text-slate-800 dark:text-white">
-                          {student.fullName}
-                        </h5>
+                        <div className="flex items-center gap-2">
+                          <h5 className="text-sm font-bold text-slate-800 dark:text-white">
+                            {student.fullName}
+                          </h5>
+                          {student.teamName && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                              🤖 {student.teamName}
+                            </span>
+                          )}
+                        </div>
                         {assignedBlock && (
                           <div className="mt-1">
                             <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[11px] font-medium border border-blue-200 dark:border-blue-800/60">
