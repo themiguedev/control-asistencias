@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { teachers } from './data/teachers';
 import type { AttendanceRecord, TeacherWithBlocks } from './types';
 import Header from './components/layout/Header';
@@ -111,6 +111,23 @@ export function App() {
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
   const [authenticatedTeachers, setAuthenticatedTeachers] = useState<Record<string, boolean>>({});
 
+  // Dark mode state with localStorage persistence
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('cba-theme');
+    if (saved) return saved === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('cba-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('cba-theme', 'light');
+    }
+  }, [darkMode]);
+
   const activeTeacher =
     teacherList.find((t) => t.id === selectedTeacherId) || teacherList[0];
   const isAuthenticated = !!authenticatedTeachers[activeTeacher.id];
@@ -156,11 +173,13 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans">
-      {/* 1. Header */}
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+      {/* 1. Header with Dark Mode Toggle */}
       <Header
         teacherName={isAuthenticated ? activeTeacher.name : undefined}
         onLogout={isAuthenticated ? handleLogout : undefined}
+        darkMode={darkMode}
+        onToggleDarkMode={() => setDarkMode((prev) => !prev)}
       />
 
       {/* 2. Teacher Navigation Bar */}
@@ -226,7 +245,7 @@ export function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-500">
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-4 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
         <p>Centro Bolivariano Americano (CBA) — Sistema de Control de Asistencias Docente</p>
       </footer>
     </div>

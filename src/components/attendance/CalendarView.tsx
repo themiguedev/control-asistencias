@@ -92,14 +92,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-200 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       {/* Month Header and Navigation Controls */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">
             {monthTitle}
           </h2>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             Días asignados: {teacher.scheduleDays.join(', ')}
           </p>
         </div>
@@ -108,14 +108,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <button
             type="button"
             onClick={goToToday}
-            className="px-2.5 py-1 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition cursor-pointer"
+            className="px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg border border-blue-200 dark:border-blue-800 transition cursor-pointer"
           >
             Hoy
           </button>
           <button
             type="button"
             onClick={prevMonth}
-            className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 flex items-center justify-center text-sm transition cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-sm transition cursor-pointer"
             aria-label="Mes anterior"
           >
             ◀
@@ -123,7 +123,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <button
             type="button"
             onClick={nextMonth}
-            className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 flex items-center justify-center text-sm transition cursor-pointer"
+            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-sm transition cursor-pointer"
             aria-label="Mes siguiente"
           >
             ▶
@@ -148,7 +148,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               key={day.key}
               title={day.label}
               className={`text-xs font-bold py-1.5 rounded-md ${
-                isWeekend ? 'text-gray-400 bg-gray-50' : 'text-gray-700 bg-gray-100/80'
+                isWeekend
+                  ? 'text-slate-400 dark:text-slate-600 bg-slate-50 dark:bg-slate-800/40'
+                  : 'text-slate-700 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800'
               }`}
             >
               {day.key}
@@ -163,7 +165,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         {Array.from({ length: mondayOffset }).map((_, i) => (
           <div
             key={`empty-${i}`}
-            className="aspect-square min-h-[50px] sm:min-h-[64px] rounded-xl bg-gray-50/40 border border-transparent"
+            className="aspect-square min-h-[50px] sm:min-h-[64px] rounded-xl bg-slate-50/40 dark:bg-slate-800/20 border border-transparent"
           />
         ))}
 
@@ -189,20 +191,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               className={`relative aspect-square min-h-[52px] sm:min-h-[68px] p-1 sm:p-1.5 rounded-xl border flex flex-col justify-between transition-all cursor-pointer text-left ${
                 isTeaching
                   ? isCurrentSelected
-                    ? 'bg-indigo-50 border-indigo-600 ring-2 ring-indigo-500/40 shadow-sm'
-                    : 'bg-indigo-50/40 border-indigo-200 hover:bg-indigo-100/60 hover:border-indigo-300'
+                    ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-600 dark:border-blue-500 ring-2 ring-blue-500/40 shadow-sm'
+                    : 'bg-blue-50/40 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50 hover:bg-blue-100/60 dark:hover:bg-blue-900/40 hover:border-blue-300 dark:hover:border-blue-700'
                   : isCurrentSelected
-                  ? 'bg-gray-100 border-gray-400 ring-2 ring-gray-300'
-                  : 'bg-white border-gray-100 text-gray-400 hover:bg-gray-50'
-              } ${isCurrentToday ? 'ring-2 ring-blue-600 font-bold' : ''}`}
+                  ? 'bg-slate-100 dark:bg-slate-800 border-slate-400 dark:border-slate-600 ring-2 ring-slate-300 dark:ring-slate-700'
+                  : 'bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/60 text-slate-400 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+              } ${isCurrentToday ? 'ring-2 ring-blue-500 font-bold' : ''}`}
             >
               {/* Day Number and Today Marker */}
               <div className="flex items-center justify-between w-full">
                 <span
                   className={`text-xs sm:text-sm font-semibold ${
                     isTeaching
-                      ? 'text-gray-900 font-bold'
-                      : 'text-gray-400 font-normal'
+                      ? 'text-slate-900 dark:text-slate-100 font-bold'
+                      : 'text-slate-400 dark:text-slate-600 font-normal'
                   }`}
                 >
                   {dayNumber}
@@ -210,7 +212,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                 {isCurrentToday && (
                   <span
-                    className="w-1.5 h-1.5 rounded-full bg-blue-600"
+                    className="w-1.5 h-1.5 rounded-full bg-blue-500"
                     title="Hoy"
                   />
                 )}
@@ -249,7 +251,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         return (
                           <span
                             key={b.id}
-                            className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 border-gray-300 bg-white"
+                            className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
                             title={`${b.label}: Pendiente`}
                           />
                         );
@@ -261,7 +263,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       renderStatusSymbol(dayRecords[0].status)
                     ) : (
                       <span
-                        className="w-4 h-4 rounded-full border-2 border-gray-300 bg-white"
+                        className="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
                         title="Programado - Sin registro"
                       />
                     )
@@ -277,7 +279,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs text-gray-500">
+      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs text-slate-500 dark:text-slate-400">
         <div className="flex items-center gap-1.5">
           <span className="w-4 h-4 rounded-full bg-emerald-500 text-white font-bold text-[10px] flex items-center justify-center">
             ✓
@@ -297,11 +299,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <span>Justificado</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded-full border-2 border-gray-300 bg-white" />
+          <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800" />
           <span>Pendiente</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded-md border-2 border-blue-600 bg-white" />
+          <span className="w-3.5 h-3.5 rounded-md border-2 border-blue-500 bg-white dark:bg-slate-800" />
           <span>Hoy</span>
         </div>
       </div>

@@ -15,10 +15,10 @@ export const Navigation: React.FC<NavigationProps> = ({
   authenticatedTeachers = {},
 }) => {
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-xs mb-6">
+    <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs mb-6 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto py-2.5">
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 mr-2 hidden md:inline-block">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-2 hidden md:inline-block">
             Docentes:
           </span>
           {teachers.map((teacher) => {
@@ -32,8 +32,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                 onClick={() => onSelectTeacher(teacher.id)}
                 className={`group flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap border ${
                   isActive
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-200'
-                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
+                    : 'bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-200 dark:hover:border-blue-500/30'
                 }`}
               >
                 <span className="text-base" role="img" aria-label="profesor">
@@ -44,8 +44,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <span
                   className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                     isActive
-                      ? 'bg-indigo-500/80 text-white'
-                      : 'bg-gray-200/80 text-gray-600 group-hover:bg-indigo-100 group-hover:text-indigo-700'
+                      ? 'bg-blue-500/80 text-white'
+                      : 'bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300'
                   }`}
                 >
                   {teacher.scheduleDays
