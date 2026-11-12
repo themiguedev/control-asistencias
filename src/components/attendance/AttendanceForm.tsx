@@ -344,20 +344,20 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           )}
         </div>
 
-        {/* 3 Status Toggle Buttons */}
+        {/* 3 Status Toggle Buttons with enhanced selected contrast */}
         <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
           <button
             type="button"
             disabled={!canEdit}
             onClick={() => handleStudentStatusChange(student.id, 'presente')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 touch-manipulation min-h-[36px] ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 touch-manipulation min-h-[38px] ${
               currentStatus === 'presente'
-                ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/30 ring-2 ring-emerald-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
+                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-60 hover:opacity-100'
             } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
             title="Presente"
           >
-            <span>✓</span>
+            <span className="text-sm">✓</span>
             <span className="hidden sm:inline">Presente</span>
           </button>
 
@@ -365,14 +365,14 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             type="button"
             disabled={!canEdit}
             onClick={() => handleStudentStatusChange(student.id, 'ausente')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 touch-manipulation min-h-[36px] ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 touch-manipulation min-h-[38px] ${
               currentStatus === 'ausente'
-                ? 'bg-rose-600 text-white shadow-sm shadow-rose-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/30 ring-2 ring-rose-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
+                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-60 hover:opacity-100'
             } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
             title="Ausente"
           >
-            <span>✗</span>
+            <span className="text-sm">✗</span>
             <span className="hidden sm:inline">Ausente</span>
           </button>
 
@@ -380,14 +380,14 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             type="button"
             disabled={!canEdit}
             onClick={() => handleStudentStatusChange(student.id, 'justificado')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 touch-manipulation min-h-[36px] ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 touch-manipulation min-h-[38px] ${
               currentStatus === 'justificado'
-                ? 'bg-amber-600 text-white shadow-sm shadow-amber-500/20'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-md shadow-amber-600/30 ring-2 ring-amber-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 scale-[1.02]'
+                : 'bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 opacity-60 hover:opacity-100'
             } ${!canEdit ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
             title="Justificado"
           >
-            <span>!</span>
+            <span className="text-sm">!</span>
             <span className="hidden sm:inline">Justif.</span>
           </button>
         </div>
