@@ -16,8 +16,6 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
   onDeleteStudent,
 }) => {
   const [fullName, setFullName] = useState('');
-  const [identifier, setIdentifier] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
   const [selectedBlockId, setSelectedBlockId] = useState<string>(
     teacher.blocks[0]?.id || ''
   );
@@ -28,9 +26,7 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
   const teacherStudents = students.filter((s) => s.teacherId === teacher.id);
 
   const filteredStudents = teacherStudents.filter((s) => {
-    const matchesSearch =
-      s.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.identifier && s.identifier.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesSearch = s.fullName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBlock = filterBlockId === 'all' || s.blockId === filterBlockId;
     return matchesSearch && matchesBlock;
   });
@@ -42,14 +38,10 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
     onAddStudent({
       teacherId: teacher.id,
       fullName: fullName.trim(),
-      identifier: identifier.trim() || undefined,
-      contactPhone: contactPhone.trim() || undefined,
       blockId: isSplit ? selectedBlockId : null,
     });
 
     setFullName('');
-    setIdentifier('');
-    setContactPhone('');
   };
 
   return (
@@ -84,7 +76,7 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
               <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                Nombres y Apellidos <span className="text-rose-500">*</span>:
+                Nombres y Apellidos del Alumno <span className="text-rose-500">*</span>:
               </label>
               <input
                 type="text"
@@ -94,34 +86,6 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                 placeholder="Ej. Carlos Mendoza Gil"
                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                  Cédula / Identificador:
-                </label>
-                <input
-                  type="text"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="Ej. V-28123456"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
-                  Teléfono de Contacto:
-                </label>
-                <input
-                  type="tel"
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="Ej. 0414-1234567"
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
-              </div>
             </div>
 
             {isSplit && (
@@ -161,7 +125,7 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por nombre o cédula..."
+                placeholder="Buscar alumno por nombre..."
                 className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
@@ -212,23 +176,13 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                         <h5 className="text-sm font-bold text-slate-800 dark:text-white">
                           {student.fullName}
                         </h5>
-                        <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                          {student.identifier && (
-                            <span className="bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded text-[11px] font-medium text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
-                              ID: {student.identifier}
-                            </span>
-                          )}
-                          {student.contactPhone && (
-                            <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                              <span className="text-rose-500">📞</span> {student.contactPhone}
-                            </span>
-                          )}
-                          {assignedBlock && (
+                        {assignedBlock && (
+                          <div className="mt-1">
                             <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[11px] font-medium border border-blue-200 dark:border-blue-800/60">
                               🕒 {assignedBlock.label} ({assignedBlock.startTime} - {assignedBlock.endTime})
                             </span>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
