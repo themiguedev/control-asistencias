@@ -7,7 +7,7 @@ export const teachers: TeacherWithBlocks[] = [
     shortName: 'Miguelangel',
     scheduleDays: ['martes', 'jueves'],
     blockType: 'continuous',
-    pin: '1234',
+    pin: '2607',
     blocks: [
       {
         id: 'block-miguelangel-1',
@@ -41,7 +41,7 @@ export const teachers: TeacherWithBlocks[] = [
     shortName: 'Mayuli',
     scheduleDays: ['martes', 'jueves'],
     blockType: 'split',
-    pin: '9012',
+    pin: '8686',
     blocks: [
       {
         id: 'block-mayuli-1',
