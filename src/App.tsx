@@ -10,7 +10,7 @@ import SummaryCard from './components/reports/SummaryCard';
 import StudentsManager from './components/students/StudentsManager';
 import WeeklyReportsView from './components/reports/WeeklyReportsView';
 import WeeklyReportsModal from './components/reports/WeeklyReportsModal';
-import { formatDate } from './utils/schedule';
+import { formatDate, getDayName } from './utils/schedule';
 import {
   getStudents,
   addStudent as dbAddStudent,
@@ -523,6 +523,50 @@ export function App() {
         const cloudAttendances = await getStudentAttendances();
         if (isMounted && cloudAttendances) {
           setStudentAttendanceRecords(cloudAttendances);
+
+          // Inferir / sincronizar automáticamente asistencias de profesores a partir de los registros de estudiantes
+          setAttendanceRecords((currentLocalRecords) => {
+            const derivedMap = new Map<string, AttendanceRecord>();
+            currentLocalRecords.forEach((r) => {
+              derivedMap.set(`${r.teacherId}-${r.classDate}-${r.blockId || ''}`, r);
+            });
+
+            // Agrupar cloudAttendances por teacherId + classDate + blockId
+            const sessionGroups = new Map<string, StudentAttendanceRecord[]>();
+            cloudAttendances.forEach((sa) => {
+              const key = `${sa.teacherId}-${sa.classDate}-${sa.blockId || ''}`;
+              const list = sessionGroups.get(key) || [];
+              list.push(sa);
+              sessionGroups.set(key, list);
+            });
+
+            sessionGroups.forEach((recordsInSession, key) => {
+              const first = recordsInSession[0];
+              const [y, m, d] = first.classDate.split('-').map(Number);
+              const sessionDate = new Date(y, m - 1, d);
+              const dayName = getDayName(sessionDate);
+
+              const hasPresent = recordsInSession.some((r) => r.status === 'presente');
+              const hasJustified = recordsInSession.some((r) => r.status === 'justificado');
+              const derivedStatus = hasPresent ? 'presente' : hasJustified ? 'justificado' : 'ausente';
+
+              const existing = derivedMap.get(key);
+              derivedMap.set(key, {
+                id: existing ? existing.id : `derived-${key}`,
+                teacherId: first.teacherId,
+                blockId: first.blockId,
+                classDate: first.classDate,
+                dayName,
+                status: existing && existing.status !== 'justificado' ? existing.status : derivedStatus,
+                notes: existing?.notes || 'Asistencia registrada con alumnos',
+                createdAt: existing?.createdAt || first.createdAt || new Date().toISOString(),
+              });
+            });
+
+            const merged = Array.from(derivedMap.values());
+            localStorage.setItem('cba-attendance-records', JSON.stringify(merged));
+            return merged;
+          });
         }
       } catch (err) {
         console.warn('[App] Error sincronizando con Supabase:', err);
