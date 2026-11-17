@@ -353,15 +353,6 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                             )}
                           </div>
                         )}
-                                onClick={() => handleStartEditTeam(student)}
-                                className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 min-h-[28px] rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer touch-manipulation active:scale-95"
-                                title="Asignar a un equipo"
-                              >
-                                <span>+ Asignar equipo</span>
-                              </button>
-                            )
-                          )}
-                        </div>
 
                         {/* Inline Team Editor */}
                         {supportsTeams && isEditingThisStudent && (
