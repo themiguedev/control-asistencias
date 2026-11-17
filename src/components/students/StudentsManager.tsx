@@ -29,6 +29,10 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
   const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
   const [editTeamValue, setEditTeamValue] = useState('');
 
+  // Editing name state
+  const [renamingStudentId, setRenamingStudentId] = useState<string | null>(null);
+  const [editNameValue, setEditNameValue] = useState('');
+
   // Support teams for Miguelangel and Luis
   const supportsTeams =
     teacher.id === 'teacher-miguelangel' || teacher.id === 'teacher-luis';
@@ -99,6 +103,28 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
   const handleCancelEditTeam = () => {
     setEditingStudentId(null);
     setEditTeamValue('');
+  };
+
+  const handleStartRename = (student: Student) => {
+    setRenamingStudentId(student.id);
+    setEditNameValue(student.fullName);
+  };
+
+  const handleSaveRename = (student: Student) => {
+    const trimmed = editNameValue.trim();
+    if (trimmed && trimmed !== student.fullName && onUpdateStudent) {
+      onUpdateStudent({
+        ...student,
+        fullName: trimmed,
+      });
+    }
+    setRenamingStudentId(null);
+    setEditNameValue('');
+  };
+
+  const handleCancelRename = () => {
+    setRenamingStudentId(null);
+    setEditNameValue('');
   };
 
   return (
@@ -237,46 +263,96 @@ export const StudentsManager: React.FC<StudentsManagerProps> = ({
                 );
 
                 const isEditingThisStudent = editingStudentId === student.id;
+                const isRenamingThisStudent = renamingStudentId === student.id;
 
                 return (
                   <div
                     key={student.id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-blue-200 dark:hover:border-blue-900/60 transition shadow-2xs gap-2.5 sm:gap-3"
                   >
-                    <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                       <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-xs flex items-center justify-center border border-blue-200 dark:border-blue-800 shrink-0 mt-0.5 sm:mt-0">
                         {idx + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                          <h5 className="text-sm font-bold text-slate-800 dark:text-white break-words">
-                            {student.fullName}
-                          </h5>
+                        {isRenamingThisStudent ? (
+                          <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-blue-300 dark:border-blue-800">
+                            <input
+                              type="text"
+                              value={editNameValue}
+                              onChange={(e) => setEditNameValue(e.target.value)}
+                              placeholder="Nombre y apellido..."
+                              className="flex-1 min-w-[150px] px-2.5 py-1 text-xs sm:text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[32px]"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveRename(student);
+                                if (e.key === 'Escape') handleCancelRename();
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveRename(student)}
+                              className="px-2.5 py-1 min-h-[32px] rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer transition touch-manipulation active:scale-95"
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCancelRename}
+                              className="px-2.5 py-1 min-h-[32px] rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-300 text-xs font-medium cursor-pointer transition touch-manipulation active:scale-95"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <h5 className="text-sm font-bold text-slate-800 dark:text-white break-words">
+                              {student.fullName}
+                            </h5>
 
-                          {supportsTeams && !isEditingThisStudent && (
-                            student.teamName ? (
-                              <div className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleStartRename(student)}
+                              className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-transparent hover:border-blue-200 dark:hover:border-blue-900/50 transition cursor-pointer"
+                              title="Renombrar alumno"
+                            >
+                              <span>✎ Renombrar</span>
+                            </button>
+
+                            {supportsTeams && !isEditingThisStudent && (
+                              student.teamName ? (
+                                <div className="inline-flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStartEditTeam(student)}
+                                    className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 min-h-[28px] rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-200 dark:hover:bg-blue-800/60 transition cursor-pointer touch-manipulation active:scale-95"
+                                    title="Clic para cambiar de equipo"
+                                  >
+                                    <span>🤖 {student.teamName}</span>
+                                    <span className="text-[10px] opacity-70">✎</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveFromTeam(student)}
+                                    className="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition cursor-pointer text-xs touch-manipulation active:scale-90"
+                                    title="Sacar al alumno de este equipo"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              ) : (
                                 <button
                                   type="button"
                                   onClick={() => handleStartEditTeam(student)}
-                                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 min-h-[28px] rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-200 dark:hover:bg-blue-800/60 transition cursor-pointer touch-manipulation active:scale-95"
-                                  title="Clic para cambiar de equipo"
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 min-h-[28px] rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer touch-manipulation active:scale-95"
+                                  title="Asignar a un equipo"
                                 >
-                                  <span>🤖 {student.teamName}</span>
-                                  <span className="text-[10px] opacity-70">✎</span>
+                                  <span>+ Asignar equipo</span>
                                 </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveFromTeam(student)}
-                                  className="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition cursor-pointer text-xs touch-manipulation active:scale-90"
-                                  title="Sacar al alumno de este equipo"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
+                              )
+                            )}
+                          </div>
+                        )}
                                 onClick={() => handleStartEditTeam(student)}
                                 className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 min-h-[28px] rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer touch-manipulation active:scale-95"
                                 title="Asignar a un equipo"
