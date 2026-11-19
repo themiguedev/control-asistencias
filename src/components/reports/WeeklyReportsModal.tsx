@@ -10,6 +10,7 @@ interface WeeklyReportsModalProps {
   studentAttendanceRecords: StudentAttendanceRecord[];
   activeTeacher?: TeacherWithBlocks;
   selectedDate?: Date;
+  initialPeriodMode?: 'semanal' | 'mensual';
 }
 
 export function WeeklyReportsModal({
@@ -20,6 +21,7 @@ export function WeeklyReportsModal({
   studentAttendanceRecords,
   activeTeacher,
   selectedDate,
+  initialPeriodMode = 'semanal',
 }: WeeklyReportsModalProps) {
   // Close on Escape key
   useEffect(() => {
@@ -52,7 +54,7 @@ export function WeeklyReportsModal({
                 id="reports-modal-title"
                 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white"
               >
-                Centro de Reportes Semanales CBA
+                Centro de Reportes CBA (Semanales y Mensuales)
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Informes oficiales y descargas en formato Excel (.xlsx)
@@ -90,6 +92,7 @@ export function WeeklyReportsModal({
             studentAttendanceRecords={studentAttendanceRecords}
             activeTeacher={activeTeacher}
             selectedDate={selectedDate}
+            initialPeriodMode={initialPeriodMode}
           />
         </div>
 

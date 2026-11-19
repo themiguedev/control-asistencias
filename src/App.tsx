@@ -473,6 +473,7 @@ export function App() {
 
   // Active view tab: 'asistencias' | 'alumnos' | 'reportes'
   const [activeTab, setActiveTab] = useState<'asistencias' | 'alumnos' | 'reportes'>('asistencias');
+  const [reportPeriodMode, setReportPeriodMode] = useState<'semanal' | 'mensual'>('semanal');
   const [isReportsModalOpen, setIsReportsModalOpen] = useState<boolean>(false);
 
   // Students list with Supabase + localStorage persistence
@@ -816,18 +817,41 @@ export function App() {
 
                   <button
                     type="button"
-                    onClick={() => setActiveTab('reportes')}
+                    onClick={() => {
+                      setActiveTab('reportes');
+                      setReportPeriodMode('semanal');
+                    }}
                     className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
-                      activeTab === 'reportes'
+                      activeTab === 'reportes' && reportPeriodMode === 'semanal'
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
                         : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                   >
                     <span className="text-base sm:text-sm">📊</span>
                     <span className="hidden sm:inline">Reportes Semanales (Excel)</span>
-                    <span className="sm:hidden">Reportes</span>
+                    <span className="sm:hidden">R. Semanal</span>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                      Excel
+                      Semana
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('reportes');
+                      setReportPeriodMode('mensual');
+                    }}
+                    className={`shrink-0 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer border touch-manipulation active:scale-[0.98] whitespace-nowrap ${
+                      activeTab === 'reportes' && reportPeriodMode === 'mensual'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/20'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span className="text-base sm:text-sm">🗓️</span>
+                    <span className="hidden sm:inline">Reporte Mensual (Excel)</span>
+                    <span className="sm:hidden">R. Mensual</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30">
+                      Mes
                     </span>
                   </button>
                 </div>
@@ -855,13 +879,14 @@ export function App() {
                 onUpdateStudent={handleUpdateStudent}
               />
             ) : activeTab === 'reportes' ? (
-              /* Sección de Reportes Semanales y Exportación Excel */
+              /* Sección de Reportes Semanales y Mensuales */
               <WeeklyReportsView
                 teachers={teacherList}
                 students={students}
                 studentAttendanceRecords={studentAttendanceRecords}
                 activeTeacher={activeTeacher}
                 selectedDate={selectedDate}
+                initialPeriodMode={reportPeriodMode}
               />
             ) : (
               /* Sección de Control de Asistencias */
@@ -872,6 +897,10 @@ export function App() {
                     teacher={activeTeacher}
                     records={attendanceRecords}
                     month={currentMonth}
+                    onOpenMonthlyReport={() => {
+                      setActiveTab('reportes');
+                      setReportPeriodMode('mensual');
+                    }}
                   />
                 </section>
 
@@ -913,7 +942,7 @@ export function App() {
         )}
       </main>
 
-      {/* Floating Weekly Reports Center Modal */}
+      {/* Floating Reports Center Modal */}
       <WeeklyReportsModal
         isOpen={isReportsModalOpen}
         onClose={() => setIsReportsModalOpen(false)}
@@ -922,6 +951,7 @@ export function App() {
         studentAttendanceRecords={studentAttendanceRecords}
         activeTeacher={activeTeacher}
         selectedDate={selectedDate}
+        initialPeriodMode={reportPeriodMode}
       />
 
       {/* Modal para Editar Horario y Bloques del Profesor */}

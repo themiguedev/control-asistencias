@@ -6,12 +6,14 @@ interface SummaryCardProps {
   teacher: TeacherWithBlocks;
   records: AttendanceRecord[];
   month: Date;
+  onOpenMonthlyReport?: () => void;
 }
 
 export const SummaryCard: React.FC<SummaryCardProps> = ({
   teacher,
   records,
   month,
+  onOpenMonthlyReport,
 }) => {
   const year = month.getFullYear();
   const monthIndex = month.getMonth(); // 0-indexed
@@ -179,6 +181,22 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
           </div>
         </div>
       </div>
+
+      {onOpenMonthlyReport && (
+        <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+            ¿Deseas exportar o ver el desglose por alumnos de este mes?
+          </span>
+          <button
+            type="button"
+            onClick={onOpenMonthlyReport}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition cursor-pointer"
+          >
+            <span>🗓️</span>
+            <span>Ver Reporte Mensual Completo ➜</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

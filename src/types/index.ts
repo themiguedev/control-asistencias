@@ -82,3 +82,38 @@ export interface StudentAttendanceSummary {
   attendanceRate: number; // 0 - 100 percentage
   recordsByDate: Record<string, StudentAttendanceRecord>;
 }
+
+export interface MonthRange {
+  year: number;
+  month: number; // 1-12
+  monthIndex: number; // 0-11
+  label: string; // e.g. "Noviembre 2026"
+  shortLabel: string; // e.g. "Nov 2026"
+  startDate: string; // YYYY-MM-01
+  endDate: string; // YYYY-MM-DD
+  monthDays: Date[];
+  classDays: Date[];
+  weeks: WeekRange[];
+}
+
+export interface StudentMonthlySummary {
+  student: Student;
+  teacher: TeacherWithBlocks;
+  teamName: string;
+  blockLabel?: string;
+  totalClasses: number;
+  presentes: number;
+  ausentes: number;
+  justificados: number;
+  attendanceRate: number; // 0 - 100 percentage
+  recordsByDate: Record<string, StudentAttendanceRecord>;
+  weeklyBreakdown: {
+    weekNumber: number;
+    weekLabel: string;
+    total: number;
+    presentes: number;
+    ausentes: number;
+    justificados: number;
+    rate: number;
+  }[];
+}
